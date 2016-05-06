@@ -29,19 +29,45 @@ namespace MyTestApp
 
                     reader.Close();
 
+                    var colLens = new List<int>();
+
                     foreach (var c in tbl.Columns)
                     {
                         var column = c as DataColumn;
                         var cName = column.ColumnName;
                         var maxLen = column.MaxLength > 15 ? 15 : column.MaxLength;
                         var cLen = maxLen > cName.Length ? maxLen : cName.Length;
-                        var fmt = "{0," + (cLen+1) + "} |";
+                        var fmt = "{0," + (++cLen) + "} |";
+
+                        colLens.Add(cLen);
+
                         Console.Write(fmt, column);
                     }
+                    Console.WriteLine("");
 
                     foreach (var r in tbl.Rows)
                     {
                         var row = r as DataRow;
+
+                        var c = 0;
+                        foreach (var o in row.ItemArray)
+                        {
+                            object f;
+                            var fmt = "{0," + colLens[c++];
+                            if (o is DateTime)
+                            {
+                                f = o.ToString().Substring(0, 10);
+                                fmt += "}|";
+                            }
+                            else
+                            {
+                                f = o;
+                                fmt += "} |";
+                            }
+                            Console.Write(fmt, f);
+                        }
+                        Console.WriteLine("");
+                        
                     }
 
                 }
