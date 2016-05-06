@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Text;
@@ -16,38 +17,33 @@ namespace MyTestApp
         {
             using (var connection = new SqlConnection(_conStr))
             {
-                var sqlCmd = new SqlCommand(sql, connection);
+                var sqlCmd = new SqlCommand(sql, connection) {CommandType = CommandType.Text};
 
                 try
                 {
                     connection.Open();
-                    var reader = sqlCmd.ExecuteReader();
+                    var reader = sqlCmd.ExecuteReader(/*CommandBehavior.KeyInfo*/);
 
-                    bool header = true;
-                    while (reader.Read())
-                    {
-                        var fCnt = reader.FieldCount;
-                        if (header)
-                        {
-                            for (int i = 0; i < fCnt; i++)
-                            {
-                                Console.Write("{0}|", reader.GetName(i));
-                            }
-                            Console.WriteLine("");
-                            //Console.WriteLine("{0,3}|{1,20}|{2,20}|{3,3}|{4,7}|{5,3}|{6,15}|{7,12}|{8,5}"
-                            //    , reader.GetName(0), reader.GetName(1), reader.GetName(2), reader.GetName(3), reader.GetName(4), reader.GetName(5), reader.GetName(6), reader.GetName(7), reader.GetName(8));
-                            header = false;
-                        }
-                        for (int i = 0; i < fCnt; i++)
-                        {
-                            Console.Write("{0}|", reader[i]);
-                        }
-                        Console.WriteLine("");
-                        //Console.WriteLine("{0,3}|{1,20}|{2,20}|{3,3}|{4,7}|{5,3}|{6,15}|{7,12}|{8,5}"
-                        //    , reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6], reader[7], reader[8]);
-                    }
+                    var tbl = new DataTable();
+                    tbl.Load(reader);
 
                     reader.Close();
+
+                    foreach (var c in tbl.Columns)
+                    {
+                        var column = c as DataColumn;
+                        var cName = column.ColumnName;
+                        var maxLen = column.MaxLength > 15 ? 15 : column.MaxLength;
+                        var cLen = maxLen > cName.Length ? maxLen : cName.Length;
+                        var fmt = "{0," + (cLen+1) + "} |";
+                        Console.Write(fmt, column);
+                    }
+
+                    foreach (var r in tbl.Rows)
+                    {
+                        var row = r as DataRow;
+                    }
+
                 }
                 catch (Exception ex)
                 {
