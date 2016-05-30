@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MyUnitTests
@@ -59,6 +62,86 @@ namespace MyUnitTests
                 });
 
             Assert.AreEqual(res.Count(), 1);
+        }
+
+        [TestMethod]
+        public void Test_Aggregate()
+        {
+            string sentence = "the quick brown fox jumps over the lazy dog";
+
+            // Split the string into individual words.
+            string[] words = sentence.Split(' ');
+
+            var glueBack = words.Aggregate((first, next) =>
+                first + " " + next);
+
+            // Prepend each word to the beginning of the 
+            // new sentence to reverse the word order.
+            string reversed = words.Aggregate((first, next) =>
+                next + " " + first);
+
+            Debug.WriteLine(sentence);
+            Debug.WriteLine(glueBack);
+
+            Assert.AreEqual(sentence, glueBack);
+
+            Debug.WriteLine(reversed);
+            Debug.WriteLine(new String(sentence.Reverse().ToArray()));
+
+            Assert.AreEqual(reversed.Length, sentence.Length);
+        }
+
+        [TestMethod]
+        public void Test_Linq_Find_With_Null()
+        {
+            try
+            {
+                var flatCspCustomer = Data.IniCspCustomers
+                    .Where(c => c.Domains != null)
+                    .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
+
+                var toBeCreated = (
+                    from c in Data.IniDbCustomers.Where(x => x.Comments.Contains("#2"))
+                    from csp in flatCspCustomer
+                    where
+                        c.PrimaryDomain!=null && c.PrimaryDomain.Equals(csp.Name) ||
+                        c.TenantName!=null && c.TenantName.Equals(csp.Name)
+                    select c
+                    ).ToList();
+
+                Assert.IsTrue(toBeCreated.Count > 0);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public async Task TestCorrect() //note the return type of Task. This is required to get the async test 'waitable' by the framework
+        {
+            await Task.Factory.StartNew(async () =>
+            {
+                Console.WriteLine("Start at {0}", DateTime.Now);
+                await Task.Delay(5000);
+                Console.WriteLine("Done  at {0}", DateTime.Now);
+            }).Unwrap(); //Note the call to Unwrap. This automatically attempts to find the most Inner `Task` in the return type.
+            Console.WriteLine("All done [{0}]", DateTime.Now);
+        }
+
+        [TestMethod]
+        public async Task RunAsyncTestFactorial()
+        {
+            Console.WriteLine("Start  [{0}]", DateTime.Now);
+            await AsyncTasks.DisplayResultAsync();
+            Console.WriteLine("Finish [{0}]", DateTime.Now);
+        }
+
+        [TestMethod]
+        public void CalcRecurFactorial()
+        {
+            var num = 10;
+            Console.WriteLine("Factorial of {0} is {1}.", num, AsyncTasks.RecFact(num));
         }
     }
 }

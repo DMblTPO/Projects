@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTestApp", "MyTestApp\MyTestApp.csproj", "{CF164AA2-E03F-431D-A29D-06709A800AC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTestDBApp", "MyTestApp\MyTestDBApp.csproj", "{CF164AA2-E03F-431D-A29D-06709A800AC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyUnitTests", "MyUnitTests\MyUnitTests.csproj", "{68765058-183A-4E6C-A5D4-DDE7AAA126D0}"
 EndProject
