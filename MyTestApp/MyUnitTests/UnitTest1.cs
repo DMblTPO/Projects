@@ -21,37 +21,12 @@ namespace MyUnitTests
             Assert.IsTrue(s1.Equals(s2, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        internal class Address
-        {
-            public string Address1 { get; set; }
-            public string Address2 { get; set; }
-            public string State { get; set; }
-            public string City { get; set; }
-            public string Zip { get; set; }
-        };
-
-        IList<Address> getAddresses()
-        {
-            var db = new List<Address>
-            {
-                new Address {Address1 = "a1", Address2 = "a12", City = "c1", State = "s1", Zip = "z1"},
-                new Address {Address1 = "a2", Address2 = "a22", City = "c2", State = "s2", Zip = "z2"},
-                new Address {Address1 = "a3", Address2 = null,  City = "c3", State = "s3", Zip = null},
-                new Address {Address1 = "a4", Address2 = "a42", City = "c4", State = "s4", Zip = "z4"},
-                new Address {Address1 = "a5", Address2 = null,  City = "c5", State = "s5", Zip = "z5"}
-            };
-
-            return db;
-        }
-
         [TestMethod]
         public void Test_LINQComparationOfNullOrEmptyStrings()
         {
-            var data = getAddresses();
-
             var chk = new Address {Address1 = "a3", Address2 = null, City = "c3", State = "s3", Zip = null};
 
-            var res = data.Where(x =>
+            var res = Data.Addresses.Where(x =>
                 string.Format("{0}|{1}|{2}|{3}|{4}", x.Address1, x.Address2, x.City, x.State, x.Zip).Equals(
                     string.Format("{0}|{1}|{2}|{3}|{4}", chk.Address1, chk.Address2, chk.City, chk.State, chk.Zip)
                     ))
@@ -97,19 +72,21 @@ namespace MyUnitTests
             try
             {
                 var flatCspCustomer = Data.IniCspCustomers
-                    .Where(c => c.Domains != null)
-                    .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
+                    .Where(c => c.Domains != null);
+                    // .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
 
-                var toBeCreated = (
+                var toBeCreatedFlat = (
                     from c in Data.IniDbCustomers.Where(x => x.Comments.Contains("#2"))
-                    from csp in flatCspCustomer
+                    join csp in flatCspCustomer on c.TenantId equals csp.TenantId
                     where
-                        c.PrimaryDomain!=null && c.PrimaryDomain.Equals(csp.Name) ||
-                        c.TenantName!=null && c.TenantName.Equals(csp.Name)
-                    select c
-                    ).ToList();
+                        csp.Domains.Any(d => c.TenantName!=null && d.Name.Equals(c.TenantName) ||
+                                             c.PrimaryDomain != null && d.Name.Equals(c.PrimaryDomain))
+                    select new
+                    {
+                        c.TenantId, c.PrimaryDomain, c.TenantName
+                    }).ToList();
 
-                Assert.IsTrue(toBeCreated.Count > 0);
+                Assert.IsTrue(toBeCreatedFlat.Count == 3);
             }
             catch (Exception ex)
             {
@@ -142,6 +119,13 @@ namespace MyUnitTests
         {
             var num = 10;
             Console.WriteLine("Factorial of {0} is {1}.", num, AsyncTasks.RecFact(num));
+        }
+
+        [TestMethod]
+        public void ShowType()
+        {
+            Console.WriteLine(typeof(Data).ToString());
+            Assert.AreEqual(typeof(Data).ToString(), "MyUnitTests.Data");
         }
     }
 }
