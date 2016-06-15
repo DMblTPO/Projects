@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace MyTestDbApp
 {
     class MyDb
     {
         readonly string _conStr = @"Data Source=(local)\sqlexpress;Initial Catalog=qalight;Integrated Security=true";
+
+
 
         public void SendQuery(string sql)
         {
@@ -30,19 +34,20 @@ namespace MyTestDbApp
 
                     var colLens = new List<int>();
 
-                    foreach (var c in tbl.Columns)
-                    {
-                        var column = c as DataColumn;
-                        var cName = column.ColumnName;
-                        var maxLen = column.MaxLength > 15 ? 15 : column.MaxLength;
-                        var cLen = maxLen > cName.Length ? maxLen : cName.Length;
-                        var fmt = "{0," + (++cLen) + "} |";
+                    var tmpContainer = new XElement("tr");
+                    tbl.Columns
+                        .Cast<DataColumn>()
+                        .Select(c => new XElement("th", c.ColumnName))
+                        .ToList()
+                        .ForEach(x => tmpContainer.Add(x));
 
-                        colLens.Add(cLen);
+                    Console.Write("{0}", tmpContainer);
 
-                        Console.Write(fmt, column);
-                    }
                     Console.WriteLine("");
+
+                    tbl.Rows
+                        .Cast<DataRow>()
+                        .Select(r => r.ItemArray);
 
                     foreach (var r in tbl.Rows)
                     {

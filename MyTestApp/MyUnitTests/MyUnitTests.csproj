@@ -53,7 +53,8 @@
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />
     <Compile Include="Customers.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="StaticClass.cs" />
+    <Compile Include="MyUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Choose>
