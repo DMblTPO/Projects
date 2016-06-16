@@ -1,20 +1,17 @@
 ﻿@{
+    ViewBag.Title = "SQL Checker";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-@{
-    ViewBag.Title = "Check yourself!";
 }
 
 <h2>@ViewBag.Title</h2>
 
-<p>Enter SQL query:</p>
-
-@using (Html.BeginForm("SendSql", "SqlChecker", FormMethod.Post, new { role = "form" }))
+@using (Html.BeginForm())
 {
     <div class="form-horizontal">
         <div class="form-group">
 
+            @Html.TextBox("lessonId")
+            @Html.TextBox("taskId")
             @Html.TextArea("sql", new { rows = 10, @class = "form-control" })
 
         </div>

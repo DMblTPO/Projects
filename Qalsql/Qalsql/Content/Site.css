@@ -22,3 +22,10 @@ select,
 textarea {
     max-width: 100%;
 }
+
+/* MY CSS */
+.h-scroll {
+    height: 300px; /* 90vh %-height of the viewport */
+    -position: fixed;
+    overflow-y: scroll;
+}

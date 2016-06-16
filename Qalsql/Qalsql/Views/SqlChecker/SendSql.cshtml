@@ -5,36 +5,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-
-<h2>SQL Result</h2>
-
 @if (Model.Status.IsOk)
 {
     <h3>Your SQL: @Model.Query</h3>
-    <table>
 
-        <thead>
-        <tr>
-            @foreach (var colHeader in Model.Header)
-            {
-                <th>@colHeader</th>
-            }
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var row in Model.Data)
-        {
-            <tr>
-                @foreach (var col in row)
+    <div class="h-scroll">
+        <table>
+
+            <thead>
+                <tr>
+                    @foreach (var colHeader in Model.Header)
+                    {
+                        <th>@colHeader</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Data)
                 {
-                    <td>@col</td>
+                    <tr>
+                        @foreach (var col in row)
+                        {
+                            <td>@col</td>
+                        }
+                    </tr>
                 }
-            </tr>
-        }
-        </tbody>
+            </tbody>
 
-    </table>
+        </table>
+    </div>
 }
 else
 {

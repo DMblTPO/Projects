@@ -230,6 +230,9 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\SqlChecker\Index.cshtml" />
+    <None Include="Views\SqlChecker\CheckSql.cshtml" />
+    <None Include="Views\SqlChecker\CheckSqlFail.cshtml" />
+    <None Include="Views\SqlChecker\CheckSqlOk.cshtml" />
     <None Include="Views\SqlChecker\SendSql.cshtml" />
   </ItemGroup>
   <ItemGroup>
