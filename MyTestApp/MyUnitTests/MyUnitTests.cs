@@ -175,5 +175,19 @@ namespace MyUnitTests
 
             Assert.IsTrue(true);
         }
+
+        [TestMethod]
+        public void SelectWithPossibleNullValue()
+        {
+            List<int> listOfInts = new List<int> { 1, 2, 3, 4, 5 };
+
+            var res = listOfInts.Select(i => (i%2==0? i.ToString(): null)).ToList();
+
+            Assert.IsTrue(res.Count>0);
+
+            res = listOfInts.Where(i => i % 2 == 0).Select(i => i.ToString()).ToList();
+
+            Assert.IsTrue(res.Count > 0);
+        }
     }
 }
