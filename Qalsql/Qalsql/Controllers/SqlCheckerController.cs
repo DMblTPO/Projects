@@ -7,10 +7,17 @@ namespace Qalsql.Controllers
 {
     public class SqlCheckerController : Controller
     {
+        private SqlHwCheckerContext _db = new SqlHwCheckerContext();
+
         // GET: SqlChecker
         public ActionResult Index()
         {
             return View();
+        }
+
+        public ActionResult ListOfTasks(int lessonId)
+        {
+            return View(_db.HwExercises.Where(x => x.LessonId == lessonId).ToList());
         }
 
         [HttpPost]

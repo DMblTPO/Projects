@@ -78,6 +78,25 @@ namespace MyUnitTests
         }
 
         [TestMethod]
+        public void Test_Aggregate_Guid()
+        {
+            List<Guid> lg = new List<Guid>
+            {
+                Guid.Parse("3C8B2B93-7ABB-42DD-9912-6758562DB47A"),
+                Guid.Parse("B08035EE-B1DE-457D-8D8E-8D293D303C6D"),
+                Guid.Parse("0A6059FC-0BFD-408F-8D2A-2E0A1AD69ACB")
+            };
+
+            var glueBack = lg.Select(g => string.Format("'{0}'", g)).Aggregate((first, next) =>
+                first + ", " + next);
+
+            Assert.IsNotNull(glueBack);
+
+            Debug.WriteLine(glueBack);
+        }
+
+
+        [TestMethod]
         public void Test_Linq_Find_With_Null()
         {
             try
@@ -189,5 +208,27 @@ namespace MyUnitTests
 
             Assert.IsTrue(res.Count > 0);
         }
+
+        [TestMethod]
+        public void NullableGuidToSting()
+        {
+            Guid? nullGuid = null;
+
+            var res = string.IsNullOrEmpty(nullGuid.ToString());
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void TotalDays()
+        {
+            var d1 = DateTime.Parse("2016-07-27");
+            var d2 = DateTime.Parse("2016-07-23");
+
+            var td = (d1 - d2).TotalDays + 1;
+
+            Assert.IsTrue(td == 5d);
+        }
+
     }
 }

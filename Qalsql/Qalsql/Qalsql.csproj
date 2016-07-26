@@ -235,6 +235,7 @@
     <None Include="Views\SqlChecker\CheckSql.cshtml" />
     <None Include="Views\SqlChecker\CheckSqlFail.cshtml" />
     <None Include="Views\SqlChecker\CheckSqlOk.cshtml" />
+    <None Include="Views\SqlChecker\ListOfTasks.cshtml" />
     <None Include="Views\SqlChecker\SendSql.cshtml" />
   </ItemGroup>
   <ItemGroup>
