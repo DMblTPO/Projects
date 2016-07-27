@@ -15,7 +15,7 @@ namespace Qalsql.Controllers
             return View();
         }
 
-        public ActionResult ListOfTasks(int lessonId)
+        public ActionResult ListOfTasks(int lessonId = 3)
         {
             return View(_db.HwExercises.Where(x => x.LessonId == lessonId).ToList());
         }
