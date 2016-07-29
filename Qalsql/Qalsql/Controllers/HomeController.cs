@@ -18,7 +18,8 @@ namespace Qalsql.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Как со мной связаться?";
+            var user = User.Identity.Name;
+            ViewBag.Message = $"Привет, {user}! Как со мной связаться?";
 
             return View();
         }
