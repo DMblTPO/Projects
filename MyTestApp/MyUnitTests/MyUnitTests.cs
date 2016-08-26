@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -103,17 +104,19 @@ namespace MyUnitTests
             {
                 var flatCspCustomer = Data.IniCspCustomers
                     .Where(c => c.Domains != null);
-                    // .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
+                // .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
 
                 var toBeCreatedFlat = (
                     from c in Data.IniDbCustomers.Where(x => x.Comments.Contains("#2"))
                     join csp in flatCspCustomer on c.TenantId equals csp.TenantId
                     where
-                        csp.Domains.Any(d => c.TenantName!=null && d.Name.Equals(c.TenantName) ||
+                        csp.Domains.Any(d => c.TenantName != null && d.Name.Equals(c.TenantName) ||
                                              c.PrimaryDomain != null && d.Name.Equals(c.PrimaryDomain))
                     select new
                     {
-                        c.TenantId, c.PrimaryDomain, c.TenantName
+                        c.TenantId,
+                        c.PrimaryDomain,
+                        c.TenantName
                     }).ToList();
 
                 Assert.IsTrue(toBeCreatedFlat.Count == 3);
@@ -125,14 +128,16 @@ namespace MyUnitTests
         }
 
         [TestMethod]
-        public async Task TestCorrect() //note the return type of Task. This is required to get the async test 'waitable' by the framework
+        public async Task TestCorrect()
+            //note the return type of Task. This is required to get the async test 'waitable' by the framework
         {
             await Task.Factory.StartNew(async () =>
             {
                 Console.WriteLine("Start at {0}", DateTime.Now);
                 await Task.Delay(5000);
                 Console.WriteLine("Done  at {0}", DateTime.Now);
-            }).Unwrap(); //Note the call to Unwrap. This automatically attempts to find the most Inner `Task` in the return type.
+            }).Unwrap();
+                //Note the call to Unwrap. This automatically attempts to find the most Inner `Task` in the return type.
             Console.WriteLine("All done [{0}]", DateTime.Now);
         }
 
@@ -198,13 +203,13 @@ namespace MyUnitTests
         [TestMethod]
         public void SelectWithPossibleNullValue()
         {
-            List<int> listOfInts = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> listOfInts = new List<int> {1, 2, 3, 4, 5};
 
-            var res = listOfInts.Select(i => (i%2==0? i.ToString(): null)).ToList();
+            var res = listOfInts.Select(i => (i%2 == 0 ? i.ToString() : null)).ToList();
 
-            Assert.IsTrue(res.Count>0);
+            Assert.IsTrue(res.Count > 0);
 
-            res = listOfInts.Where(i => i % 2 == 0).Select(i => i.ToString()).ToList();
+            res = listOfInts.Where(i => i%2 == 0).Select(i => i.ToString()).ToList();
 
             Assert.IsTrue(res.Count > 0);
         }
@@ -230,5 +235,66 @@ namespace MyUnitTests
             Assert.IsTrue(td == 5d);
         }
 
+        [TestMethod]
+        public void TimeSpanForTheNextDay()
+        {
+            var t = DateTime.Today.AddDays(1d).AddHours(1d);
+
+            Thread.Sleep(3000);
+
+            var ct = DateTime.UtcNow;
+            var ts = t - ct;
+
+            Assert.IsTrue(ts > default(TimeSpan));
+        }
+
+        public class TodaySchedule
+        {
+            public class NextTs
+            {
+                public TimeSpan Time;
+                public TimeSpan Remain;
+            }
+
+            private readonly TimeSpan _period;
+            private readonly TimeSpan _endOfProcessDay;
+            private TimeSpan _lastNext;
+
+            public TodaySchedule(TimeSpan dueTime, TimeSpan period)
+            {
+                _period = period;
+                _endOfProcessDay = new TimeSpan(23, 59, 59) - period;
+                _lastNext = dueTime;
+            }
+
+            public NextTs NextRun()
+            {
+                TimeSpan curTime = DateTime.UtcNow.TimeOfDay;
+
+                while (_lastNext < curTime && _lastNext <= _endOfProcessDay)
+                {
+                    _lastNext += _period;
+                }
+                return new NextTs {Time = _lastNext, Remain = _lastNext - curTime};
+            }
+        }
+
+
+        [TestMethod]
+        public void GetNextTime()
+        {
+            var dueTime = new TimeSpan(18, 0, 0);
+            var period = new TimeSpan(2, 0, 0);
+
+            var sch = new TodaySchedule(dueTime, period);
+            var ts = sch.NextRun();
+
+            Debug.WriteLine($"Now: {DateTime.UtcNow.TimeOfDay}");
+            Debug.WriteLine($"What the next: {ts.Time}");
+            Debug.WriteLine($"How much to the next: {ts.Remain}");
+
+
+            Assert.IsTrue(true);
+        }
     }
 }
