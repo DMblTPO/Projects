@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace MyTestDbApp
@@ -13,8 +14,6 @@ namespace MyTestDbApp
     class MyDb
     {
         readonly string _conStr = @"Data Source=(local)\sqlexpress;Initial Catalog=qalight;Integrated Security=true";
-
-
 
         public void SendQuery(string sql)
         {
@@ -83,12 +82,12 @@ namespace MyTestDbApp
         }
     }
 
-    class Program
+    class Tests
     {
-        static void Main(string[] args)
+        public void Test1()
         {
-            Console.OutputEncoding = Encoding.UTF8; 
-            
+            Console.OutputEncoding = Encoding.UTF8;
+
             var culUA = new CultureInfo("uk-UA");
 
             Thread.CurrentThread.CurrentCulture = culUA;
@@ -98,6 +97,38 @@ namespace MyTestDbApp
             q.SendQuery("select * from students");
 
             Console.ReadLine();
+        }
+
+        public void Test2()
+        {
+            using (var timer = new System.Threading.Timer(JobFunc, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+            {
+                Console.ReadKey();
+            }
+        }
+
+        private void JobFunc(object state)
+        {
+            Console.Write($"\n[{DateTime.Now.TimeOfDay}] Job is started!\n");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var tests = new Tests();
+
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    Console.Write(".");
+                    await Task.Delay(1000);
+                }
+            });
+            
+            tests.Test2();
         }
     }
 }

@@ -248,7 +248,7 @@ namespace MyUnitTests
             Assert.IsTrue(ts > default(TimeSpan));
         }
 
-        public class TodaySchedule
+        public class ScheduleTime
         {
             public class NextTs
             {
@@ -256,25 +256,39 @@ namespace MyUnitTests
                 public TimeSpan Remain;
             }
 
+            private readonly TimeSpan _dueTime;
             private readonly TimeSpan _period;
-            private readonly TimeSpan _endOfProcessDay;
+            private readonly TimeSpan _endOfDay;
             private TimeSpan _lastNext;
 
-            public TodaySchedule(TimeSpan dueTime, TimeSpan period)
+            public ScheduleTime(TimeSpan dueTime, TimeSpan period)
             {
+                _dueTime = dueTime;
                 _period = period;
-                _endOfProcessDay = new TimeSpan(23, 59, 59) - period;
+                _endOfDay = new TimeSpan(24, 0, 0);
                 _lastNext = dueTime;
             }
 
-            public NextTs NextRun()
+            public NextTs NextRun(bool rightNow = false)
             {
                 TimeSpan curTime = DateTime.UtcNow.TimeOfDay;
 
-                while (_lastNext < curTime && _lastNext <= _endOfProcessDay)
+                if (rightNow)
+                {
+                    return new NextTs { Time = curTime, Remain = new TimeSpan(0, 0, 5) };
+                }
+
+                while (_lastNext < curTime)
                 {
                     _lastNext += _period;
                 }
+
+
+                if (_lastNext > _endOfDay)
+                {
+                    return new NextTs { Time = _dueTime, Remain = _dueTime + _endOfDay - curTime };
+                }
+
                 return new NextTs {Time = _lastNext, Remain = _lastNext - curTime};
             }
         }
@@ -283,18 +297,29 @@ namespace MyUnitTests
         [TestMethod]
         public void GetNextTime()
         {
-            var dueTime = new TimeSpan(18, 0, 0);
-            var period = new TimeSpan(2, 0, 0);
+            var dueTime = new TimeSpan(14, 0, 0);
+            var period = new TimeSpan(3, 0, 0);
 
-            var sch = new TodaySchedule(dueTime, period);
-            var ts = sch.NextRun();
+            var sch = new ScheduleTime(dueTime, period);
+            var ts = sch.NextRun(true);
 
             Debug.WriteLine($"Now: {DateTime.UtcNow.TimeOfDay}");
             Debug.WriteLine($"What the next: {ts.Time}");
             Debug.WriteLine($"How much to the next: {ts.Remain}");
 
+            ts = sch.NextRun();
+
+            Debug.WriteLine($"Now: {DateTime.UtcNow.TimeOfDay}");
+            Debug.WriteLine($"What the next: {ts.Time}");
+            Debug.WriteLine($"How much to the next: {ts.Remain}");
 
             Assert.IsTrue(true);
+        }
+
+
+        [TestMethod]
+        public void RunScheduledJob()
+        {
         }
     }
 }
