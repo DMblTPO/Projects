@@ -101,6 +101,7 @@ namespace MyTestDbApp
 
         public void Test2()
         {
+            // develop branch ini
             using (var timer = new System.Threading.Timer(JobFunc, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
             {
                 Console.ReadKey();
