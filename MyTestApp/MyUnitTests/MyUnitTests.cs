@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -318,8 +319,13 @@ namespace MyUnitTests
 
 
         [TestMethod]
-        public void RunScheduledJob()
+        public void DateToStringWithCulture()
         {
+            var culture = CultureInfo.CreateSpecificCulture("en-US");
+            var date = (new DateTime(2016, 09, 16)).ToString("d", culture);
+
+            Debug.WriteLine(date);
+            Assert.IsTrue(true);
         }
     }
 }
