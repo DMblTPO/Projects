@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace MyUnitTests
 {
     [TestClass]
-    public class MyUnitTests
+    public partial class MyUnitTests
     {
         public MyUnitTests()
         {
@@ -249,51 +249,6 @@ namespace MyUnitTests
             Assert.IsTrue(ts > default(TimeSpan));
         }
 
-        public class ScheduleTime
-        {
-            public class NextTs
-            {
-                public TimeSpan Time;
-                public TimeSpan Remain;
-            }
-
-            private readonly TimeSpan _dueTime;
-            private readonly TimeSpan _period;
-            private readonly TimeSpan _endOfDay;
-            private TimeSpan _lastNext;
-
-            public ScheduleTime(TimeSpan dueTime, TimeSpan period)
-            {
-                _dueTime = dueTime;
-                _period = period;
-                _endOfDay = new TimeSpan(24, 0, 0);
-                _lastNext = dueTime;
-            }
-
-            public NextTs NextRun(bool rightNow = false)
-            {
-                TimeSpan curTime = DateTime.UtcNow.TimeOfDay;
-
-                if (rightNow)
-                {
-                    return new NextTs { Time = curTime, Remain = new TimeSpan(0, 0, 5) };
-                }
-
-                while (_lastNext < curTime)
-                {
-                    _lastNext += _period;
-                }
-
-
-                if (_lastNext > _endOfDay)
-                {
-                    return new NextTs { Time = _dueTime, Remain = _dueTime + _endOfDay - curTime };
-                }
-
-                return new NextTs {Time = _lastNext, Remain = _lastNext - curTime};
-            }
-        }
-
 
         [TestMethod]
         public void GetNextTime()
@@ -316,8 +271,7 @@ namespace MyUnitTests
 
             Assert.IsTrue(true);
         }
-
-
+        
         [TestMethod]
         public void DateToStringWithCulture()
         {
@@ -325,6 +279,27 @@ namespace MyUnitTests
             var date = (new DateTime(2016, 09, 16)).ToString("d", culture);
 
             Debug.WriteLine(date);
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void HowMuchTimeToNextStart()
+        {
+            var startAt = TimeSpan.Parse("11:00:00");
+
+            var utcNow = DateTime.UtcNow;
+            var curDate = utcNow.Date;
+            var curTime = utcNow.TimeOfDay;
+
+            var nextDateTime = curDate.Add(startAt);
+            if (startAt < curTime)
+            {
+                nextDateTime = nextDateTime.AddDays(1);
+            }
+
+            var timeToStart = nextDateTime - utcNow;
+
+            Debug.WriteLine(timeToStart);
             Assert.IsTrue(true);
         }
     }
