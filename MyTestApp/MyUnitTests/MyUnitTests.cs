@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -301,6 +302,22 @@ namespace MyUnitTests
 
             Debug.WriteLine(timeToStart);
             Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void ProcentFormat()
+        {
+            Debug.WriteLine($"({(-0.5678d).ToString("P", new CultureInfo("en-US"))})");
+        }
+
+        [TestMethod]
+        public void RegExTest()
+        {
+            var regex = @"^\d+\.?\d{0,2}$";
+
+            var match = Regex.Match(string.Format("{0}", decimal.Parse("1.01")), regex, RegexOptions.IgnoreCase);
+
+            Assert.IsTrue(match.Success);
         }
     }
 }
