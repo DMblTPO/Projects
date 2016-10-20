@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FileStructToXml
 {
@@ -24,10 +22,10 @@ namespace FileStructToXml
 
             Console.OutputEncoding = Encoding.UTF8;
 
-            var culUA = new CultureInfo("uk-UA");
+            var culUa = new CultureInfo("uk-UA");
 
-            Thread.CurrentThread.CurrentCulture = culUA;
-            Thread.CurrentThread.CurrentUICulture = culUA;
+            Thread.CurrentThread.CurrentCulture = culUa;
+            Thread.CurrentThread.CurrentUICulture = culUa;
 
             int i = 0;
 

@@ -88,10 +88,10 @@ namespace MyTestDbApp
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            var culUA = new CultureInfo("uk-UA");
+            var culUa = new CultureInfo("uk-UA");
 
-            Thread.CurrentThread.CurrentCulture = culUA;
-            Thread.CurrentThread.CurrentUICulture = culUA;
+            Thread.CurrentThread.CurrentCulture = culUa;
+            Thread.CurrentThread.CurrentUICulture = culUa;
 
             var q = new MyDb();
             q.SendQuery("select * from students");
