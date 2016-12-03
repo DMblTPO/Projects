@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Web.Mvc;
 using Qalsql.Models;
+using Qalsql.Models.Db;
 
 namespace Qalsql.Controllers
 {
+    [Authorize]
     public class SqlCheckerController : Controller
     {
         private SqlHwCheckerContext _db = new SqlHwCheckerContext();
@@ -17,6 +19,7 @@ namespace Qalsql.Controllers
 
         public ActionResult ListOfTasks(int lessonId = 3)
         {
+
             return View(_db.HwExercises.Where(x => x.LessonId == lessonId).ToList());
         }
 
@@ -46,29 +49,30 @@ namespace Qalsql.Controllers
         [HttpPost]
         public ActionResult CheckSql(int lessonId, int taskId, string sql)
         {
-            string mainSql = SqlTasks.Get(lessonId, taskId);
+            var exercise = _db.HwExercises.FirstOrDefault(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
 
-            string combainedSql = String.Format("{0} except {1} union all {1} except {0}", sql, mainSql);
+            if (exercise == null)
+            {
+                throw new Exception("there is no task in db");
+            }
+
+            string mainSql = exercise.QueryCheck;
+
+            string combainedSql = $"{sql} except {mainSql} union all {mainSql} except {sql}";
 
             SqlResult checkResult = SqlExecutor.SendQuery(combainedSql);
             SqlResult testingSql = SqlExecutor.SendQuery(sql);
 
             if (checkResult.Status.IsOk)
             {
-                return View("CheckSqlOk");
+                ViewBag.isTaskOk = "Task is Ok!";
+                return RedirectToAction("ListOfTasks");
+                // return View("CheckSqlOk");
             }
 
             SqlResult etalonResult = SqlExecutor.SendQuery(mainSql);
 
             return View("CheckSqlFail");
-        }
-    }
-
-    public static class SqlTasks
-    {
-        public static string Get(int lessonId, int taskId)
-        {
-            return "select top(1) * from Students";
         }
     }
 }
