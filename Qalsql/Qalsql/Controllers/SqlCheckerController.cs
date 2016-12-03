@@ -7,7 +7,7 @@ using Qalsql.Models.Db;
 namespace Qalsql.Controllers
 {
     [Authorize]
-    public class SqlCheckerController : Controller
+    public class SqlCheckerController : AuthorizedController
     {
         private SqlHwCheckerContext _db = new SqlHwCheckerContext();
 
@@ -19,8 +19,26 @@ namespace Qalsql.Controllers
 
         public ActionResult ListOfTasks(int lessonId = 3)
         {
+            var answers = _db.HwAnswers.Where(x => x.User == UserId);
+            var exercises = _db.HwExercises.Where(x => x.LessonId == lessonId);
 
-            return View(_db.HwExercises.Where(x => x.LessonId == lessonId).ToList());
+            var query = exercises.GroupJoin(
+                    answers,
+                    e => e.Id,
+                    a => a.ExeId,
+                    (e, a) => new {Exe = e, Ans = a})
+                .SelectMany(
+                    e => e.Ans.DefaultIfEmpty(),
+                    (e, a) =>
+                        new TaskDto
+                        {
+                            Exercise = e.Exe,
+                            Answer = a.Query,
+                            Passed = a.Passed.HasValue && a.Passed.Value
+                        }
+                );
+
+            return View(query.ToList());
         }
 
         [HttpPost]
@@ -63,16 +81,30 @@ namespace Qalsql.Controllers
             SqlResult checkResult = SqlExecutor.SendQuery(combainedSql);
             SqlResult testingSql = SqlExecutor.SendQuery(sql);
 
-            if (checkResult.Status.IsOk)
+            var answer = _db.HwAnswers.FirstOrDefault(x => x.ExeId == exercise.Id && x.User == UserId);
+
+            if (answer == null)
             {
-                ViewBag.isTaskOk = "Task is Ok!";
-                return RedirectToAction("ListOfTasks");
-                // return View("CheckSqlOk");
+                _db.HwAnswers.Add(new HwAnswer
+                {
+                    ExeId = exercise.Id,
+                    Passed = checkResult.Status.IsOk,
+                    Query = sql,
+                    User = UserId
+                });
+            }
+            else
+            {
+                if (!(answer.Passed.HasValue && answer.Passed.Value))
+                {
+                    answer.Query = sql;
+                }
+                answer.Passed = checkResult.Status.IsOk;
             }
 
-            SqlResult etalonResult = SqlExecutor.SendQuery(mainSql);
+            _db.SaveChanges();
 
-            return View("CheckSqlFail");
+            return RedirectToAction("ListOfTasks");
         }
     }
 }

@@ -160,6 +160,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AuthorizedController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\SqlCheckerController.cs" />
@@ -169,6 +170,14 @@
     <Compile Include="Migrations\201612031201102_HwAnswers.cs" />
     <Compile Include="Migrations\201612031201102_HwAnswers.Designer.cs">
       <DependentUpon>201612031201102_HwAnswers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201612031310263_NewStructLinkToAnswer.cs" />
+    <Compile Include="Migrations\201612031310263_NewStructLinkToAnswer.Designer.cs">
+      <DependentUpon>201612031310263_NewStructLinkToAnswer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201612031337348_PassesNullable.cs" />
+    <Compile Include="Migrations\201612031337348_PassesNullable.Designer.cs">
+      <DependentUpon>201612031337348_PassesNullable.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Db\HwAnswer.cs" />
@@ -204,7 +213,9 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -241,13 +252,12 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\SqlChecker\Index.cshtml" />
     <None Include="Views\SqlChecker\CheckSql.cshtml" />
-    <None Include="Views\SqlChecker\CheckSqlFail.cshtml" />
-    <None Include="Views\SqlChecker\CheckSqlOk.cshtml" />
     <None Include="Views\SqlChecker\ListOfTasks.cshtml" />
     <None Include="Views\SqlChecker\SendSql.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Authorized\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -259,6 +269,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201612031201102_HwAnswers.resx">
       <DependentUpon>201612031201102_HwAnswers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612031310263_NewStructLinkToAnswer.resx">
+      <DependentUpon>201612031310263_NewStructLinkToAnswer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612031337348_PassesNullable.resx">
+      <DependentUpon>201612031337348_PassesNullable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
