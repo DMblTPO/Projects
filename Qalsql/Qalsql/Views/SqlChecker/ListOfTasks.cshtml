@@ -13,6 +13,8 @@
         @foreach (var exe in Model)
         {
             var href = "collapse" + exe.ExerciseNum;
+            var lessonId = exe.LessonId;
+            var taskId = exe.ExerciseNum;
 
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -22,12 +24,16 @@
                 </div>
                 <div id="@href" class="panel-collapse collapse">
                     <div class="panel-body">
-                        @using (Html.BeginForm())
+                        @using (Html.BeginForm("CheckSql", "SqlChecker"))
                         {
                             <div class="form-horizontal">
                                 <div class="col-md-10 col-md-offset-1">
                                     <div class="form-group">@exe.Conditions</div>
-                                    <div class="form-group">@Html.TextArea("sql", new { rows = 10, @class = "form-control" })</div>
+                                    <div class="form-group">
+                                        @Html.Hidden("lessonId", lessonId)
+                                        @Html.Hidden("taskId", taskId)
+                                        @Html.TextArea("sql", new {rows = 10, @class = "form-control"})
+                                    </div>
                                     <div class="form-group col-md-offset-8">
                                         <input type="submit" value="Send" class="btn btn-default" />
                                     </div>

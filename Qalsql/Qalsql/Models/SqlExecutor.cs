@@ -35,7 +35,7 @@ namespace Qalsql.Models
 
     public static class SqlExecutor
     {
-        static readonly string _conStr = @"Data Source=(local)\sqlexpress;Initial Catalog=qalight;Integrated Security=true";
+        static readonly string _conStr = @"Data Source=(localdb)\ProjectsV13;Initial Catalog=qalight;Integrated Security=true";
 
         public static SqlResult SendQuery(string sql)
         {
