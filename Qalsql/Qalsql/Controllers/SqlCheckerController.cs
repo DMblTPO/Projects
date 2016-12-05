@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Web.Mvc;
 using Qalsql.Models;
+using Qalsql.Models.Db;
 
 namespace Qalsql.Controllers
 {
-    public class SqlCheckerController : Controller
+    [Authorize]
+    public class SqlCheckerController : AuthorizedController
     {
         private SqlHwCheckerContext _db = new SqlHwCheckerContext();
 
@@ -17,7 +19,26 @@ namespace Qalsql.Controllers
 
         public ActionResult ListOfTasks(int lessonId = 3)
         {
-            return View(_db.HwExercises.Where(x => x.LessonId == lessonId).ToList());
+            var answers = _db.HwAnswers.Where(x => x.User == UserId);
+            var exercises = _db.HwExercises.Where(x => x.LessonId == lessonId);
+
+            var query = exercises.GroupJoin(
+                    answers,
+                    e => e.Id,
+                    a => a.ExeId,
+                    (e, a) => new {Exe = e, Ans = a})
+                .SelectMany(
+                    e => e.Ans.DefaultIfEmpty(),
+                    (e, a) =>
+                        new TaskDto
+                        {
+                            Exercise = e.Exe,
+                            Answer = a.Query,
+                            Passed = a.Passed.HasValue && a.Passed.Value
+                        }
+                );
+
+            return View(query.ToList());
         }
 
         [HttpPost]
@@ -46,29 +67,44 @@ namespace Qalsql.Controllers
         [HttpPost]
         public ActionResult CheckSql(int lessonId, int taskId, string sql)
         {
-            string mainSql = SqlTasks.Get(lessonId, taskId);
+            var exercise = _db.HwExercises.FirstOrDefault(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
 
-            string combainedSql = String.Format("{0} except {1} union all {1} except {0}", sql, mainSql);
+            if (exercise == null)
+            {
+                throw new Exception("there is no task in db");
+            }
+
+            string mainSql = exercise.QueryCheck;
+
+            string combainedSql = $"{sql} except {mainSql} union all {mainSql} except {sql}";
 
             SqlResult checkResult = SqlExecutor.SendQuery(combainedSql);
             SqlResult testingSql = SqlExecutor.SendQuery(sql);
 
-            if (checkResult.Status.IsOk)
+            var answer = _db.HwAnswers.FirstOrDefault(x => x.ExeId == exercise.Id && x.User == UserId);
+
+            if (answer == null)
             {
-                return View("CheckSqlOk");
+                _db.HwAnswers.Add(new HwAnswer
+                {
+                    ExeId = exercise.Id,
+                    Passed = checkResult.Status.IsOk,
+                    Query = sql,
+                    User = UserId
+                });
+            }
+            else
+            {
+                if (!(answer.Passed.HasValue && answer.Passed.Value))
+                {
+                    answer.Query = sql;
+                }
+                answer.Passed = checkResult.Status.IsOk;
             }
 
-            SqlResult etalonResult = SqlExecutor.SendQuery(mainSql);
+            _db.SaveChanges();
 
-            return View("CheckSqlFail");
-        }
-    }
-
-    public static class SqlTasks
-    {
-        public static string Get(int lessonId, int taskId)
-        {
-            return "select top(1) * from Students";
+            return RedirectToAction("ListOfTasks");
         }
     }
 }

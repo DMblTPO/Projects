@@ -1,33 +1,44 @@
-﻿@model List<Qalsql.Models.HwExercise>
+﻿@*@model List<Qalsql.Models.HwExercise>*@
+@model List<Qalsql.Models.TaskDto>
 
 @{
     ViewBag.Title = "SQL Задачи";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Лекция №@(Model.Any() ? Model[0].LessonId.ToString() : "...")</h2>
+<h2>Лекция №@(Model.Any() ? Model[0].Exercise.LessonId.ToString() : "...")</h2>
 
 <div class="container">
     <div class="panel-group" id="accordion">
 
-        @foreach (var exe in Model)
+        @foreach (var task in Model)
         {
-            var href = "collapse" + exe.ExerciseNum;
+            var exe = task.Exercise;
+            var lessonId = exe.LessonId;
+            var taskId = exe.ExerciseNum;
+            var href = "collapse" + taskId;
+            var isok = task.Passed ? "label-success" : "label-info";
+            var passed = task.Passed ? "Passed" : "Not passed";
 
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#accordion" href="#@href">Задача №@exe.ExerciseNum</a>
+                        <span class="label @isok">@passed</span>
                     </h4>
                 </div>
                 <div id="@href" class="panel-collapse collapse">
                     <div class="panel-body">
-                        @using (Html.BeginForm())
+                        @using (Html.BeginForm("CheckSql", "SqlChecker"))
                         {
                             <div class="form-horizontal">
                                 <div class="col-md-10 col-md-offset-1">
                                     <div class="form-group">@exe.Conditions</div>
-                                    <div class="form-group">@Html.TextArea("sql", new { rows = 10, @class = "form-control" })</div>
+                                    <div class="form-group">
+                                        @Html.Hidden("lessonId", lessonId)
+                                        @Html.Hidden("taskId", taskId)
+                                        @Html.TextArea("sql", task.Answer, new { rows = 10, @class = "form-control" })
+                                    </div>
                                     <div class="form-group col-md-offset-8">
                                         <input type="submit" value="Send" class="btn btn-default" />
                                     </div>
@@ -40,4 +51,3 @@
         }
     </div>
 </div>
-

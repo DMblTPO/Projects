@@ -1,46 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Web;
+using Qalsql.Models.Db;
 
-namespace Qalsql.Models
+namespace Qalsql.Models.Migrations
 {
-    public class HwExercise
+    internal sealed class Configuration : DbMigrationsConfiguration<SqlHwCheckerContext>
     {
-        public HwExercise()
+        public Configuration()
         {
+            AutomaticMigrationsEnabled = false;
+            ContextKey = "QalSql";
         }
 
-        public int Id { get; set; }
-        public int LessonId { get; set; }
-        public int ExerciseNum { get; set; }
-        public string Conditions { get; set; }
-        public string SqlToCheck { get; set; }
-    }
-
-    public class SqlHwCheckerContext : DbContext
-    {
-        public DbSet<HwExercise> HwExercises { get; set; }
-    }
-
-    public static class SqlHwCheckerDbConfig
-    {
-        public static void Init()
+        protected override void Seed(SqlHwCheckerContext context)
         {
-            using (var ctx = new SqlHwCheckerContext())
+            if (context.HwExercises.Any())
             {
-                if (ctx.HwExercises.Find(1) == null)
-                {
-                    HwExercise[] hwExercises = new[]
-                    {
+                return;
+            }
+
+            HwExercise[] hwExercises = new[]
+            {
                         new HwExercise
                         {
                             LessonId = 3,
                             ExerciseNum = 1,
                             Conditions =
                                 "Напишите один запрос с использованием псевдонимов для таблиц и их полей, выбирающий все возможные комбинации городов (CITY) из таблиц STUDENTS, LECTURERS и UNIVERSITIES строки не должны повторяться, убедитесь в выводе только уникальных троек городов",
-                            SqlToCheck =
+                            QueryCheck =
                                 "select distinct s.city as s_city, l.city as l_city, u.city as u_city from students s, lecturers l, universities u"
                         },
                         new HwExercise
@@ -49,7 +36,7 @@ namespace Qalsql.Models
                             ExerciseNum = 2,
                             Conditions =
                                 "Напишите запрос для вывода полей в следущем порядке: семестр, в котором он читается, идентификатора (номера ID) предмета обучения, его наименования и количества отводимых на этот предмет часов для всех строк таблицы SUBJECTS",
-                            SqlToCheck = "select semester, id, name, hours from subjects"
+                            QueryCheck = "select semester, id, name, hours from subjects"
                         },
                         new HwExercise
                         {
@@ -57,7 +44,7 @@ namespace Qalsql.Models
                             ExerciseNum = 3,
                             Conditions =
                                 "Выведите все строки таблицы EXAM_MARKS, в которых предмет обучения SUBJ_ID равен 4",
-                            SqlToCheck = "select * from exam_marks where subj_id=4"
+                            QueryCheck = "select * from exam_marks where subj_id=4"
                         },
                         new HwExercise
                         {
@@ -65,7 +52,7 @@ namespace Qalsql.Models
                             ExerciseNum = 4,
                             Conditions =
                                 "Необходимо выбирать все данные, в следующем порядке Стипендия, Курс, Фамилия, Имя  из таблицы STUDENTS, причем интересуют студенты, родившиеся после '1993-07-21'",
-                            SqlToCheck =
+                            QueryCheck =
                                 "select stipend, course, surname, name from students where birthday>''1993-07-21'' order by birthday"
                         },
                         new HwExercise
@@ -74,15 +61,14 @@ namespace Qalsql.Models
                             ExerciseNum = 5,
                             Conditions =
                                 "Вывести на экран все предметы: их наименования и кол-во часов для каждого из них в 1-м семестре и при этом кол-во часов не должно превышать 40",
-                            SqlToCheck = "select name, hours from  subjects where semester=1 and hours<40"
+                            QueryCheck = "select name, hours from  subjects where semester=1 and hours<40"
                         },
-                        // new HwExercise { LessonId  = 3, ExerciseNum = 6, Conditions = "", SqlToCheck = ""},
+                        // new HwExercise { LessonId  = 3, ExerciseNum = 6, Conditions = "", QueryCheck = ""},
                     };
 
-                    ctx.HwExercises.AddRange(hwExercises);
-                    ctx.SaveChanges();
-                }
-            }
+            context.HwExercises.AddRange(hwExercises);
+
+            context.SaveChanges();
         }
     }
 }
