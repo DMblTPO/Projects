@@ -2,14 +2,16 @@
 
 namespace Qalsql.Models.Db
 {
-    public class SqlHwCheckerContext : DbContext
+    public partial class QalSqlContext
     {
-        public SqlHwCheckerContext() : base("SqlHwCheckerContext")
+        public QalSqlContext()
+            : base("DefaultConnection")
         {
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<SqlHwCheckerContext, Migrations.Configuration>("SqlHwCheckerContext"));
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<QalSqlContext, Migrations.Configuration>("DefaultConnection"));
         }
 
         public DbSet<HwExercise> HwExercises { get; set; }
+
         public DbSet<HwAnswer> HwAnswers { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

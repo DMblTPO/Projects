@@ -9,7 +9,7 @@ namespace Qalsql.Controllers
     [Authorize]
     public class SqlCheckerController : AuthorizedController
     {
-        private SqlHwCheckerContext _db = new SqlHwCheckerContext();
+        private QalSqlContext _db = new QalSqlContext();
 
         // GET: SqlChecker
         public ActionResult Index()

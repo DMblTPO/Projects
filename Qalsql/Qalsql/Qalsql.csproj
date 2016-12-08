@@ -179,11 +179,19 @@
     <Compile Include="Migrations\201612031337348_PassesNullable.Designer.cs">
       <DependentUpon>201612031337348_PassesNullable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612082032158_extend_app_user_data.cs" />
+    <Compile Include="Migrations\201612082032158_extend_app_user_data.Designer.cs">
+      <DependentUpon>201612082032158_extend_app_user_data.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201612082148122_merge_as_one_db.cs" />
+    <Compile Include="Migrations\201612082148122_merge_as_one_db.Designer.cs">
+      <DependentUpon>201612082148122_merge_as_one_db.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Db\HwAnswer.cs" />
     <Compile Include="Models\Db\HwExercise.cs" />
-    <Compile Include="Models\Db\SqlHwCheckerContext.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Db\QalSqlContext.cs" />
+    <Compile Include="Models\Db\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Migrations\Configurations.cs" />
     <Compile Include="Models\SqlExecutor.cs" />
@@ -275,6 +283,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612031337348_PassesNullable.resx">
       <DependentUpon>201612031337348_PassesNullable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612082032158_extend_app_user_data.resx">
+      <DependentUpon>201612082032158_extend_app_user_data.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612082148122_merge_as_one_db.resx">
+      <DependentUpon>201612082148122_merge_as_one_db.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

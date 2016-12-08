@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Qalsql.Models.Db;
 
 namespace Qalsql.Models
 {
@@ -49,9 +50,8 @@ namespace Qalsql.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Display(Name = "User name")]
+        public string Name { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -64,6 +64,18 @@ namespace Qalsql.Models
 
     public class RegisterViewModel
     {
+        [Required]
+        [Display(Name = "Name")]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "Group number")]
+        public int Group { get; set; }
+
+        [Required]
+        [Display(Name = "Mode of Training")]
+        public TrainingMode TrainingMode { get; set; }
+
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
