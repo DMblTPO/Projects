@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,7 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace MyUnitTests
 {
     [TestClass]
-    public class MyUnitTests
+    public partial class MyUnitTests
     {
         public MyUnitTests()
         {
@@ -249,51 +250,6 @@ namespace MyUnitTests
             Assert.IsTrue(ts > default(TimeSpan));
         }
 
-        public class ScheduleTime
-        {
-            public class NextTs
-            {
-                public TimeSpan Time;
-                public TimeSpan Remain;
-            }
-
-            private readonly TimeSpan _dueTime;
-            private readonly TimeSpan _period;
-            private readonly TimeSpan _endOfDay;
-            private TimeSpan _lastNext;
-
-            public ScheduleTime(TimeSpan dueTime, TimeSpan period)
-            {
-                _dueTime = dueTime;
-                _period = period;
-                _endOfDay = new TimeSpan(24, 0, 0);
-                _lastNext = dueTime;
-            }
-
-            public NextTs NextRun(bool rightNow = false)
-            {
-                TimeSpan curTime = DateTime.UtcNow.TimeOfDay;
-
-                if (rightNow)
-                {
-                    return new NextTs { Time = curTime, Remain = new TimeSpan(0, 0, 5) };
-                }
-
-                while (_lastNext < curTime)
-                {
-                    _lastNext += _period;
-                }
-
-
-                if (_lastNext > _endOfDay)
-                {
-                    return new NextTs { Time = _dueTime, Remain = _dueTime + _endOfDay - curTime };
-                }
-
-                return new NextTs {Time = _lastNext, Remain = _lastNext - curTime};
-            }
-        }
-
 
         [TestMethod]
         public void GetNextTime()
@@ -316,8 +272,7 @@ namespace MyUnitTests
 
             Assert.IsTrue(true);
         }
-
-
+        
         [TestMethod]
         public void DateToStringWithCulture()
         {
@@ -326,6 +281,43 @@ namespace MyUnitTests
 
             Debug.WriteLine(date);
             Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void HowMuchTimeToNextStart()
+        {
+            var startAt = TimeSpan.Parse("11:00:00");
+
+            var utcNow = DateTime.UtcNow;
+            var curDate = utcNow.Date;
+            var curTime = utcNow.TimeOfDay;
+
+            var nextDateTime = curDate.Add(startAt);
+            if (startAt < curTime)
+            {
+                nextDateTime = nextDateTime.AddDays(1);
+            }
+
+            var timeToStart = nextDateTime - utcNow;
+
+            Debug.WriteLine(timeToStart);
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void ProcentFormat()
+        {
+            Debug.WriteLine($"({(-0.5678d).ToString("P", new CultureInfo("en-US"))})");
+        }
+
+        [TestMethod]
+        public void RegExTest()
+        {
+            var regex = @"^\d+\.?\d{0,2}$";
+
+            var match = Regex.Match(string.Format("{0}", decimal.Parse("1.01")), regex, RegexOptions.IgnoreCase);
+
+            Assert.IsTrue(match.Success);
         }
     }
 }
