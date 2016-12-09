@@ -1,5 +1,4 @@
-﻿@*@model List<Qalsql.Models.HwExercise>*@
-@model List<Qalsql.Models.TaskDto>
+﻿@model List<Qalsql.Models.TaskDto>
 
 @{
     ViewBag.Title = "SQL Задачи";
@@ -18,22 +17,23 @@
             var taskId = exe.ExerciseNum;
             var href = "collapse" + taskId;
             var isok = task.Passed ? "label-success" : "label-info";
-            var passed = task.Passed ? "Passed" : "Not passed";
+            var passed = task.Passed ? "ok" : "try";
+            var active = ViewBag.ActiveTask == taskId ? "in" : "collapse";
 
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#@href">Задача №@exe.ExerciseNum</a>
-                        <span class="label @isok">@passed</span>
+                        <span class="label @isok">@passed</span>&nbsp;&nbsp;
+                        <a data-toggle="collapse" data-parent="#accordion" href="#@href"><strong>#@exe.ExerciseNum</strong></a>
                     </h4>
                 </div>
-                <div id="@href" class="panel-collapse collapse">
+                <div id="@href" class="panel-collapse @active">
                     <div class="panel-body">
                         @using (Html.BeginForm("CheckSql", "SqlChecker"))
                         {
                             <div class="form-horizontal">
                                 <div class="col-md-10 col-md-offset-1">
-                                    <div class="form-group">@exe.Conditions</div>
+                                    <div class="form-group">@Html.Raw(exe.Conditions)</div>
                                     <div class="form-group">
                                         @Html.Hidden("lessonId", lessonId)
                                         @Html.Hidden("taskId", taskId)

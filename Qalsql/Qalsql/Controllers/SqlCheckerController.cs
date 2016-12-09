@@ -17,7 +17,7 @@ namespace Qalsql.Controllers
             return View();
         }
 
-        public ActionResult ListOfTasks(int lessonId = 3)
+        public ActionResult ListOfTasks(int lessonId = 3, int activeTask = 1)
         {
             var answers = _db.HwAnswers.Where(x => x.User == UserId);
             var exercises = _db.HwExercises.Where(x => x.LessonId == lessonId);
@@ -37,6 +37,8 @@ namespace Qalsql.Controllers
                             Passed = a.Passed.HasValue && a.Passed.Value
                         }
                 );
+
+            ViewBag.ActiveTask = activeTask;
 
             return View(query.ToList());
         }
@@ -104,7 +106,7 @@ namespace Qalsql.Controllers
 
             _db.SaveChanges();
 
-            return RedirectToAction("ListOfTasks");
+            return RedirectToAction("ListOfTasks", new {lessonId, activeTask = taskId});
         }
     }
 }
