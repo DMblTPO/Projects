@@ -12,10 +12,12 @@ namespace Qalsql.Models.Db
         public string User { get; set; }
         public string Query { get; set; }
         public bool? Passed { get; set; }
+        public string Message { get; set; }
 
         public int ExeId { get; set; }
 
         [ForeignKey("ExeId")]
         public virtual HwExercise Exercise { get; set; }
+
     }
 }

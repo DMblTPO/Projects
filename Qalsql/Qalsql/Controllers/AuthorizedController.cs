@@ -4,7 +4,7 @@ using Microsoft.AspNet.Identity;
 namespace Qalsql.Controllers
 {
     [Authorize]
-    public class AuthorizedController : Controller
+    public class AuthorizedController : AsyncController
     {
         private string _uid;
 

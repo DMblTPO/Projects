@@ -195,6 +195,10 @@
     <Compile Include="Migrations\201612082148122_merge_as_one_db.Designer.cs">
       <DependentUpon>201612082148122_merge_as_one_db.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612161218201_message_for_answer.cs" />
+    <Compile Include="Migrations\201612161218201_message_for_answer.Designer.cs">
+      <DependentUpon>201612161218201_message_for_answer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Db\HwAnswer.cs" />
     <Compile Include="Models\Db\HwExercise.cs" />
@@ -217,6 +221,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Properties\PublishProfiles\somee.com.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -299,6 +304,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612082148122_merge_as_one_db.resx">
       <DependentUpon>201612082148122_merge_as_one_db.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612161218201_message_for_answer.resx">
+      <DependentUpon>201612161218201_message_for_answer.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

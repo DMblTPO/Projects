@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using Qalsql.Models;
 using Qalsql.Models.Db;
@@ -9,7 +11,7 @@ namespace Qalsql.Controllers
     [Authorize]
     public class SqlCheckerController : AuthorizedController
     {
-        private QalSqlContext _db = new QalSqlContext();
+        private readonly QalSqlContext _db = new QalSqlContext();
 
         // GET: SqlChecker
         public ActionResult Index()
@@ -17,7 +19,7 @@ namespace Qalsql.Controllers
             return View();
         }
 
-        public ActionResult ListOfTasks(int lessonId = 3, int activeTask = 1)
+        public async Task<ActionResult> ListOfTasks(int lessonId = 3, int activeTask = 1)
         {
             var answers = _db.HwAnswers.Where(x => x.User == UserId);
             var exercises = _db.HwExercises.Where(x => x.LessonId == lessonId);
@@ -34,22 +36,23 @@ namespace Qalsql.Controllers
                         {
                             Exercise = e.Exe,
                             Answer = a.Query,
-                            Passed = a.Passed.HasValue && a.Passed.Value
+                            Passed = a.Passed.HasValue && a.Passed.Value,
+                            Message = a.Message
                         }
                 );
 
             ViewBag.ActiveTask = activeTask;
 
-            return View(query.ToList());
+            return View(await query.ToListAsync());
         }
 
         [HttpPost]
-        public ActionResult SendSql(string sql)
+        public async Task<ActionResult> SendSql(string sql)
         {
             SqlResult sqlResult;
             if (ModelState.IsValid)
             {
-                sqlResult = SqlExecutor.SendQuery(sql);
+                sqlResult = await SqlExecutor.SendQueryAsync(sql);
             }
             else
             {
@@ -67,21 +70,16 @@ namespace Qalsql.Controllers
         }
 
         [HttpPost]
-        public ActionResult CheckSql(int lessonId, int taskId, string sql)
+        public async Task<ActionResult> CheckSql(int lessonId, int taskId, string sql)
         {
-            var exercise = _db.HwExercises.FirstOrDefault(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
+            var exercise = await _db.HwExercises.FirstOrDefaultAsync(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
 
             if (exercise == null)
             {
                 throw new Exception("there is no task in db");
             }
 
-            string mainSql = exercise.QueryCheck;
-
-            string combainedSql = $"{sql} except {mainSql} union all {mainSql} except {sql}";
-
-            SqlResult checkResult = SqlExecutor.SendQuery(combainedSql);
-            SqlResult testingSql = SqlExecutor.SendQuery(sql);
+            var sqlResult = await SqlExecutor.CheckQuery(sql, exercise.QueryCheck);
 
             var answer = _db.HwAnswers.FirstOrDefault(x => x.ExeId == exercise.Id && x.User == UserId);
 
@@ -90,9 +88,10 @@ namespace Qalsql.Controllers
                 _db.HwAnswers.Add(new HwAnswer
                 {
                     ExeId = exercise.Id,
-                    Passed = checkResult.Status.IsOk,
+                    Passed = sqlResult.Status.IsOk,
                     Query = sql,
-                    User = UserId
+                    User = UserId,
+                    Message = sqlResult.Status.Message
                 });
             }
             else
@@ -101,7 +100,8 @@ namespace Qalsql.Controllers
                 {
                     answer.Query = sql;
                 }
-                answer.Passed = checkResult.Status.IsOk;
+                answer.Passed = sqlResult.Status.IsOk;
+                answer.Message = sqlResult.Status.Message;
             }
 
             _db.SaveChanges();
