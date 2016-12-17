@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@if (Model.Status.IsOk)
+@if (Model.Status.Success)
 {
     <h3>Your SQL: @Model.Query</h3>
 

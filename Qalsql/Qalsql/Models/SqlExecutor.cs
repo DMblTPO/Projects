@@ -10,7 +10,7 @@ namespace Qalsql.Models
 {
     public class SqlStatus
     {
-        public bool IsOk { get; set; }
+        public bool Success { get; set; }
         public string Message { get; set; }
     }
 
@@ -26,12 +26,12 @@ namespace Qalsql.Models
     {
         public static SqlResult Ok(string sql)
         {
-            return new SqlResult { Query = sql, Status = new SqlStatus { IsOk = true, Message = String.Empty } };
+            return new SqlResult { Query = sql, Status = new SqlStatus { Success = true } };
         }
 
         public static SqlResult Fail(string sql, string message)
         {
-            return new SqlResult { Query = sql, Status = new SqlStatus { IsOk = false, Message = message } };
+            return new SqlResult { Query = sql, Status = new SqlStatus { Success = false, Message = message } };
         }
     }
 

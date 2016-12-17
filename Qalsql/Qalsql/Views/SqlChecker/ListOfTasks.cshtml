@@ -16,8 +16,9 @@
             var lessonId = exe.LessonId;
             var taskId = exe.ExerciseNum;
             var href = "collapse" + taskId;
-            var isok = task.Passed ? "label-success" : "label-info";
-            var passed = task.Passed ? "ok" : "try";
+            var again = !task.Passed && task.Message != null && task.Message.Trim().Length > 0;
+            var passed = task.Passed ? "ok" : again ? "again" : "try";
+            var isok = task.Passed ? "label-success" : again ? "label-danger" : "label-info";
             var active = ViewBag.ActiveTask == taskId ? "in" : "collapse";
 
             <div class="panel panel-default">
@@ -33,7 +34,7 @@
                         {
                             <div class="form-horizontal">
                                 <div class="col-md-10 col-md-offset-1">
-                                    @if (!task.Passed && task.Message != null && task.Message.Trim().Length > 0)
+                                    @if (again)
                                     {
                                         <div class="form-group">
                                             <div class="alert alert-danger">

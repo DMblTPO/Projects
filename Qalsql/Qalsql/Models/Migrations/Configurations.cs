@@ -87,9 +87,13 @@ namespace Qalsql.Models.Migrations
                             "<li><i>UNIVERSITIES</i>: с рейтингом менее 400</li>"+
                             "</ul>" +
                             "Строки не должны повторяться, убедитесь в выводе только уникальных комбинаций городов. " +
-                            ". " +
+                            "<br>" +
                             "<strong>Внимание</strong>: убедитесь, что каждая колонка выборки имеет свое уникальное имя.",
-                    query = "select distinct s.city as s_city, l.city as l_city, u.city as u_city from students s, lecturers l, universities u"
+                    query = "select distinct s.city as s_city, l.city as l_city, u.city as u_city " +
+                            "from students s, lecturers l, universities u " +
+                            "where s.gender='f' and s.course=1 and " +
+                            "l.univ_id<3 and " +
+                            "u.rating<400"
                 },
                 new
                 {
