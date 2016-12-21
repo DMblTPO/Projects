@@ -19,7 +19,7 @@ namespace Qalsql.Controllers
             return View();
         }
 
-        public async Task<ActionResult> ListOfTasks(int lessonId = 3, int activeTask = 1)
+        public async Task<ActionResult> ListOfTasks(int lessonId = 3, int activeTask = 1, ResultBag result = null)
         {
             var answers = _db.HwAnswers.Where(x => x.User == UserId);
             var exercises = _db.HwExercises.Where(x => x.LessonId == lessonId);
@@ -42,6 +42,7 @@ namespace Qalsql.Controllers
                 );
 
             ViewBag.ActiveTask = activeTask;
+            ViewData[$"{lessonId}{activeTask}"] = result;
 
             return View(await query.ToListAsync());
         }
@@ -70,9 +71,10 @@ namespace Qalsql.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CheckSql(int lessonId, int taskId, string sql)
+        public async Task<ActionResult> CheckSql(int lessonId, int taskId, string sql, bool showResult)
         {
-            var exercise = await _db.HwExercises.FirstOrDefaultAsync(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
+            var exercise =
+                await _db.HwExercises.FirstOrDefaultAsync(t => t.LessonId == lessonId && t.ExerciseNum == taskId);
 
             if (exercise == null)
             {
@@ -85,26 +87,38 @@ namespace Qalsql.Controllers
 
             if (answer == null)
             {
-                _db.HwAnswers.Add(new HwAnswer
+                answer = new HwAnswer
                 {
                     ExeId = exercise.Id,
                     Passed = sqlResult.Status.Success,
                     Query = sql,
                     User = UserId,
                     Message = sqlResult.Status.Message
-                });
+                };
+                _db.HwAnswers.Add(answer);
             }
             else
             {
                 var ok = sqlResult.Status.Success;
                 answer.Query = sql;
                 answer.Passed = ok;
-                answer.Message = !ok? sqlResult.Status.Message: null;
+                answer.Message = !ok ? sqlResult.Status.Message : null;
+            }
+
+            ResultBag resultBag = null;
+
+            if (showResult)
+            {
+                resultBag = new ResultBag
+                {
+                    Custom = await SqlExecutor.SendQueryAsync(sql),
+                    Etalon = sqlResult.Status.Success? null: await SqlExecutor.SendQueryAsync(answer.Exercise.QueryCheck)
+                };
             }
 
             _db.SaveChanges();
 
-            return RedirectToAction("ListOfTasks", new {lessonId, activeTask = taskId});
+            return RedirectToAction("ListOfTasks", new {lessonId, activeTask = taskId, result = resultBag});
         }
     }
 }

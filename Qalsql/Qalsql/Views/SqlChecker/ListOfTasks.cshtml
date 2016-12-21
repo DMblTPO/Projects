@@ -1,4 +1,5 @@
-﻿@model List<Qalsql.Models.TaskDto>
+﻿@using Qalsql.Models
+@model List<TaskDto>
 
 @{
     ViewBag.Title = "SQL Задачи";
@@ -20,6 +21,7 @@
             var passed = task.Passed ? "ok" : again ? "again" : "try";
             var isok = task.Passed ? "label-success" : again ? "label-danger" : "label-info";
             var active = ViewBag.ActiveTask == taskId ? "in" : "collapse";
+            var result = ViewData[$"{lessonId}{taskId}"] as ResultBag;
 
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -50,8 +52,22 @@
                                     </div>
                                     <div class="form-group col-md-offset-8">
                                         <input type="submit" value="Send" class="btn btn-default" />
+                                        <span style="margin-left: 15px;">
+                                            @Html.CheckBox("showResult", false)
+                                            @Html.Label("показать результат")
+                                        </span>
                                     </div>
                                 </div>
+                            </div>
+                        }
+                        @if (result != null && result.Custom != null)
+                        {
+                            <div>
+                                @Html.Partial("ResultTabPartial", result.Custom)
+                                @if (task.Passed)
+                                {
+                                    @Html.Partial("ResultTabPartial", result.Etalon)
+                                } 
                             </div>
                         }
                     </div>

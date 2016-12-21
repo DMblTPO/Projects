@@ -1,0 +1,33 @@
+﻿@model Qalsql.Models.SqlResult
+
+@if (Model.Status.Success)
+{
+    <div class="h-scroll">
+        <table class="result-tab">
+            <thead>
+                <tr>
+                    @foreach (var colHeader in Model.Header)
+                    {
+                        <th>@colHeader</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Data)
+                {
+                    <tr>
+                        @foreach (var col in row)
+                        {
+                            <td>@col</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+}
+else
+{
+    <h3>ERROR: @Model.Status.Message</h3>
+}
