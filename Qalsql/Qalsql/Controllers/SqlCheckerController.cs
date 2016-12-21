@@ -88,7 +88,7 @@ namespace Qalsql.Controllers
                 _db.HwAnswers.Add(new HwAnswer
                 {
                     ExeId = exercise.Id,
-                    Passed = sqlResult.Status.IsOk,
+                    Passed = sqlResult.Status.Success,
                     Query = sql,
                     User = UserId,
                     Message = sqlResult.Status.Message
@@ -96,12 +96,10 @@ namespace Qalsql.Controllers
             }
             else
             {
-                if (!(answer.Passed.HasValue && answer.Passed.Value))
-                {
-                    answer.Query = sql;
-                }
-                answer.Passed = sqlResult.Status.IsOk;
-                answer.Message = sqlResult.Status.Message;
+                var ok = sqlResult.Status.Success;
+                answer.Query = sql;
+                answer.Passed = ok;
+                answer.Message = !ok? sqlResult.Status.Message: null;
             }
 
             _db.SaveChanges();
