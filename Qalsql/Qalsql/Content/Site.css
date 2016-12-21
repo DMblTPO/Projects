@@ -29,3 +29,8 @@ textarea {
     -position: fixed;
     overflow-y: scroll;
 }
+
+.result-tab td,
+.result-tab th {
+    padding: 2px 4px;
+}

@@ -5,13 +5,11 @@
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("SendSql", "SqlChecker"))
 {
     <div class="form-horizontal">
         <div class="form-group">
 
-            @Html.TextBox("lessonId")
-            @Html.TextBox("taskId")
             @Html.TextArea("sql", new { rows = 10, @class = "form-control" })
 
         </div>

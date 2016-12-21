@@ -97,8 +97,8 @@ namespace Qalsql.Models
                     .Cast<DataRow>()
                     .Select(r => r.ItemArray.Select(c =>
                     {
-                        var f = c;
-                        return f.ToString();
+                        if (c is DateTime) return $"{(DateTime)c:yyyy-MM-dd}";
+                        return c.ToString();
                     }).ToList())
                     .ToList();
             }
