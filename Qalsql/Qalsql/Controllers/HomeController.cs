@@ -23,5 +23,10 @@ namespace Qalsql.Controllers
 
             return View();
         }
+
+        public ActionResult ListOfTasks()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
