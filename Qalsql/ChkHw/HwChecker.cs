@@ -28,7 +28,7 @@ namespace ChkHw
         private static RegexOptions TmpOptions => RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant;
         private static string TmpBegin => @"^\/\*sql-begin-\d{1,2}-\d{1,2}\*\/$";
         private static string TmpEnd => @"^\/\*sql-end-\d{1,2}-\d{1,2}\*\/$";
-        private static string TmpSkip => @"(^\s*--)|(^\s*\/\*[^s]+.*\*\/)|(^\s*\/\*\s*\*\/)";
+        private static string TmpSkip => @"(^\s*$)|(^\s*--)|(^\s*\/\*[^s]+.*\*\/)|(^\s*\/\*\s*\*\/)";
         private static string TmpSplit => @"\d{1,2}";
 
         private static bool IsBegin(this string line)
@@ -101,6 +101,11 @@ namespace ChkHw
             while (Next())
             {
                 var lineState = _line.LineState();
+
+                if (lineState == HwState.Skip)
+                {
+                    continue;
+                }
 
                 if (_stateProcess == HwState.Start && lineState != HwState.Begin)
                 {
