@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ChkHw
@@ -11,7 +11,9 @@ namespace ChkHw
     {
         Start = 0,
         Begin,
-        End
+        End,
+        Skip,
+        Query
     }
 
     public class HwTask
@@ -20,83 +22,135 @@ namespace ChkHw
         public int Task { get; set; }
     }
 
+
     public static class HwExtension
     {
-        private static string[] ParseContent(this string line)
+        private static RegexOptions TmpOptions => RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant;
+        private static string TmpBegin => @"^\/\*sql-begin-\d{1,2}-\d{1,2}\*\/$";
+        private static string TmpEnd => @"^\/\*sql-end-\d{1,2}-\d{1,2}\*\/$";
+        private static string TmpSkip => @"(^\s*--)|(^\s*\/\*[^s]+.*\*\/)|(^\s*\/\*\s*\*\/)";
+        private static string TmpSplit => @"\d{1,2}";
+
+        private static bool IsBegin(this string line)
         {
-            if (line.StartsWith("/*") && line.EndsWith("*/"))
+            return Regex.IsMatch(line, TmpBegin, TmpOptions);
+        }
+
+        private static bool IsEnd(this string line)
+        {
+            return Regex.IsMatch(line, TmpEnd, TmpOptions);
+        }
+
+        private static bool ToSkip(this string line)
+        {
+            return Regex.IsMatch(line, TmpSkip, TmpOptions);
+        }
+
+        public static HwState LineState(this string line)
+        {
+            if (line.ToSkip())
             {
-                var content = line.Split('*')[1];
-                return content.Split('-');
+                return HwState.Skip;
+            }
+            if (line.IsBegin())
+            {
+                return HwState.Begin;
+            }
+            if (line.IsEnd())
+            {
+                return HwState.End;
+            }
+            return HwState.Query;
+        }
+
+        public static HwTask ParseNumbers(this string line)
+        {
+            try
+            {
+                Func<Match, int> asInt = m => int.Parse(m.ToString());
+                var nums = new Regex(TmpSplit, TmpOptions).Matches(line);
+                return new HwTask{ Lesson = asInt(nums[0]), Task = asInt(nums[1]) };
+            }
+            catch (Exception)
+            {
+                // ignored
             }
             return null;
-        }
-        public static bool IsBeginTask(this string line, ref HwTask task)
-        {
-            var parts = line.ParseContent();
-            if (parts == null || parts.Length != 4 || !parts[3].Equals("begin"))
-            {
-                return false;
-            }
-            if (task != null)
-            {
-                task.Lesson = int.Parse(parts[0]);
-                task.Task = int.Parse(parts[1]);
-            }
-            return true;
-        }
-        public static bool IsEndTask(this string line, HwTask task)
-        {
-            var parts = line.ParseContent();
-            if (parts == null || parts.Length != 4 || !parts[3].Equals("end"))
-            {
-                return false;
-            }
-            if (task == null) throw new NullReferenceException("Did you forget HwTask?");
-            if (task.Lesson == int.Parse(parts[0]) && 
-                task.Task == int.Parse(parts[1]))
-            {
-                return true;
-            }
-            return false;
         }
     }
 
     public class HwAutomate
     {
-        private TextReader _reader;
-        private HwState _state;
+        private readonly TextReader _reader;
+        private HwState _stateProcess;
+        private string _line = string.Empty;
+
+        public Dictionary<int, string> Queries { get; } = new Dictionary<int, string>();
 
         public HwAutomate(TextReader reader)
         {
             _reader = reader;
-            _state = HwState.Start;
+            _stateProcess = HwState.Start;
         }
 
-        public async Task Process()
+        public void Process()
         {
-            string line;
-            var hwTask = new HwTask();
-            while (true)
+            HwTask nums = null;
+            var query = string.Empty;
+
+            while (Next())
             {
-                line = await _reader.ReadLineAsync();
-                if (line.IsBeginTask(ref hwTask))
+                var lineState = _line.LineState();
+
+                if (_stateProcess == HwState.Start && lineState != HwState.Begin)
                 {
-                    Next();
+                    continue;
+                }
+
+                if (_stateProcess == HwState.Start && lineState == HwState.Begin ||
+                    _stateProcess == HwState.End   && lineState == HwState.Begin)
+                {
+                    _stateProcess = lineState;
+                    query = string.Empty;
+                    nums = _line.ParseNumbers();
+                    continue;
+                }
+
+                if (_stateProcess == HwState.Begin && lineState == HwState.Query ||
+                    _stateProcess == HwState.Query && lineState == HwState.Query)
+                {
+                    _stateProcess = lineState;
+                    query += _line;
+                    continue;
+                }
+
+                if (_stateProcess == HwState.Query && lineState == HwState.End)
+                {
+                    _stateProcess = lineState;
+                    if (nums != null)
+                    {
+                        Queries.Add(nums.Task, query);
+                    }
+                    continue;
                 }
             }
         }
 
-        private void Next()
+        private bool Next()
         {
-            switch (_state)
+            try
             {
-                case HwState.Start:
-                case HwState.Begin:
-                    break;
-                case HwState.End:
-                    break;
+                _line = _reader.ReadLine();
+                if (_line == null)
+                {
+                    return false;
+                }
             }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
     }
 
@@ -104,44 +158,6 @@ namespace ChkHw
     {
         public IList<Status> DoCheck(TextReader txt, int lessonId)
         {
-            try
-            {
-                var state = HwState.Start;
-                var queries = new List<string>();
-                string query;
-                while (true)
-                {
-                    string line = txt.ReadLine();
-
-                    var task = new HwTask();
-
-                    if ((state == HwState.Start || state == HwState.End ) && line.IsBeginTask(task))
-                    {
-                        state = HwState.Begin;
-
-                        while(true)
-                        {
-                            line = txt.ReadLine();
-                            if (state)
-                            {
-                                
-                            }
-                        }
-                    }
-
-
-                        do
-                        {
-                            if (line.StartsWith("/*") && line.EndsWith("-sql-end*/") && line)
-                            {
-                            }
-                        } while (!string.Equals(line, $"/*{lesson}-{task}-sql-end*/", StringComparison.Ordinal));
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
             return null;
         }
     }
