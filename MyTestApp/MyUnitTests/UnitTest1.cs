@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -48,5 +50,31 @@ namespace MyUnitTests
             var json = JsonConvert.SerializeObject(accreditationDto, Formatting.Indented);
             Debug.WriteLine(json);
         }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            for (var i = 0; i++ < 10;)
+            {
+                Debug.WriteLine($"{GeneratePassword(5)}");
+                Thread.Sleep(50);
+            }
+        }
+
+        string GeneratePassword(int len)
+        {
+            var r = new Random();
+            var x = new[] { new { v = 'a', m = 25 }, new { v = 'A', m = 25 }, new { v = '0', m = 10 }, new { v = '!', m = 12 } };
+            var f = new Func<int, char>((i) => (char)((byte)x[i].v + (byte)r.Next(x[i].m)));
+
+            var s = new StringBuilder();
+            s.Append($"{f(0)}{f(1)}{f(2)}{f(3)}");
+
+            for (var i = 4; i++ < len; s.Append($"{f(r.Next(4))}")) { }
+
+            return s.ToString();
+        }
+
+
     }
 }

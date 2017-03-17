@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ChkHw
 {
+    [Flags]
     public enum HwState
     {
         Start = 0,
-        Begin,
-        End,
-        Skip,
-        Query
+        Begin = 1 << 1,
+        End = 1 << 2,
+        Skip = 1 << 3,
+        Query = 1 << 4,
     }
+
+    public static class HwStateExtension
 
     public class HwTask
     {
