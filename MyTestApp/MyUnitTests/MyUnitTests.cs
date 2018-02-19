@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace MyUnitTests
 {
-    [TestClass]
-    public partial class MyUnitTests
+    [TestFixture()]
+    public class MyUnitTests
     {
         public MyUnitTests()
         {
             Debug.WriteLine("MyUnitTests ctor starts");
         }
 
-        [TestInitialize]
+        [SetUp]
         public void TestInitializer()
         {
             Debug.WriteLine("TestInitializer starts");
         }
 
-        [TestMethod]
+        [Test]
         public void Test_CompareNullOrEmptyStrings()
         {
             string s1 = string.Empty;
@@ -35,7 +33,7 @@ namespace MyUnitTests
             Assert.IsTrue(s1.Equals(s2, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        [TestMethod]
+        [Test]
         public void Test_LINQComparationOfNullOrEmptyStrings()
         {
             var chk = new Address {Address1 = "a3", Address2 = null, City = "c3", State = "s3", Zip = null};
@@ -53,7 +51,7 @@ namespace MyUnitTests
             Assert.AreEqual(res.Count(), 1);
         }
 
-        [TestMethod]
+        [Test]
         public void Test_Aggregate()
         {
             string sentence = "the quick brown fox jumps over the lazy dog";
@@ -80,7 +78,7 @@ namespace MyUnitTests
             Assert.AreEqual(reversed.Length, sentence.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void Test_Aggregate_Guid()
         {
             List<Guid> lg = new List<Guid>
@@ -99,7 +97,7 @@ namespace MyUnitTests
         }
 
 
-        [TestMethod]
+        [Test]
         public void Test_Linq_Find_With_Null()
         {
             try
@@ -129,7 +127,7 @@ namespace MyUnitTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public async Task TestCorrect()
             //note the return type of Task. This is required to get the async test 'waitable' by the framework
         {
@@ -143,7 +141,7 @@ namespace MyUnitTests
             Console.WriteLine("All done [{0}]", DateTime.Now);
         }
 
-        [TestMethod]
+        [Test]
         public async Task RunAsyncTestFactorial()
         {
             Console.WriteLine("Start  [{0}]", DateTime.Now);
@@ -151,21 +149,21 @@ namespace MyUnitTests
             Console.WriteLine("Finish [{0}]", DateTime.Now);
         }
 
-        [TestMethod]
+        [Test]
         public void CalcRecurFactorial()
         {
             var num = 10;
             Console.WriteLine("Factorial of {0} is {1}.", num, AsyncTasks.RecFact(num));
         }
 
-        [TestMethod]
+        [Test]
         public void ShowType()
         {
             Console.WriteLine(typeof(Data).ToString());
             Assert.AreEqual(typeof(Data).ToString(), "MyUnitTests.Data");
         }
 
-        [TestMethod]
+        [Test]
         public void TryParseBoolean()
         {
             bool bFlag;
@@ -190,7 +188,7 @@ namespace MyUnitTests
             Assert.IsTrue(!bFlag && !bOk);
         }
 
-        [TestMethod]
+        [Test]
         public void PublicAndStaticCtor()
         {
             Debug.WriteLine("PublicAndStaticCtor :: Begin");
@@ -202,7 +200,7 @@ namespace MyUnitTests
             Assert.IsTrue(true);
         }
 
-        [TestMethod]
+        [Test]
         public void SelectWithPossibleNullValue()
         {
             List<int> listOfInts = new List<int> {1, 2, 3, 4, 5};
@@ -216,7 +214,7 @@ namespace MyUnitTests
             Assert.IsTrue(res.Count > 0);
         }
 
-        [TestMethod]
+        [Test]
         public void NullableGuidToSting()
         {
             Guid? nullGuid = null;
@@ -226,7 +224,7 @@ namespace MyUnitTests
             Assert.IsTrue(res);
         }
 
-        [TestMethod]
+        [Test]
         public void TotalDays()
         {
             var d1 = DateTime.Parse("2016-07-27");
@@ -237,7 +235,7 @@ namespace MyUnitTests
             Assert.IsTrue(td == 5d);
         }
 
-        [TestMethod]
+        [Test]
         public void TimeSpanForTheNextDay()
         {
             var t = DateTime.Today.AddDays(1d).AddHours(1d);
@@ -251,7 +249,7 @@ namespace MyUnitTests
         }
 
 
-        [TestMethod]
+        [Test]
         public void GetNextTime()
         {
             var dueTime = new TimeSpan(14, 0, 0);
@@ -273,7 +271,7 @@ namespace MyUnitTests
             Assert.IsTrue(true);
         }
         
-        [TestMethod]
+        [Test]
         public void DateToStringWithCulture()
         {
             var culture = CultureInfo.CreateSpecificCulture("en-US");
@@ -283,7 +281,7 @@ namespace MyUnitTests
             Assert.IsTrue(true);
         }
 
-        [TestMethod]
+        [Test]
         public void HowMuchTimeToNextStart()
         {
             var startAt = TimeSpan.Parse("11:00:00");
@@ -304,13 +302,13 @@ namespace MyUnitTests
             Assert.IsTrue(true);
         }
 
-        [TestMethod]
+        [Test]
         public void ProcentFormat()
         {
             Debug.WriteLine($"({(-0.5678d).ToString("P", new CultureInfo("en-US"))})");
         }
 
-        [TestMethod]
+        [Test]
         public void RegExTest()
         {
             var regex = @"^\d+\.?\d{0,2}$";
@@ -318,6 +316,70 @@ namespace MyUnitTests
             var match = Regex.Match(string.Format("{0}", decimal.Parse("1.01")), regex, RegexOptions.IgnoreCase);
 
             Assert.IsTrue(match.Success);
+        }
+
+        [Test]
+        public void GroupJoinTest()
+        {
+            var off = new[]
+            {
+                new { id = 1, title = "offering-1", typ = 'e' },
+                new { id = 2, title = "offering-2", typ = 'd' },
+                new { id = 3, title = "offering-3", typ = 'e' },
+            };
+
+            var inv = new[]
+            {
+                new { id = 1, dt = DateTime.Today.AddDays(-3), amount =   204m, offid = 2 },
+                new { id = 2, dt = DateTime.Today.AddDays(-2), amount =   134m, offid = 1 },
+                new { id = 3, dt = DateTime.Today.AddDays(-1), amount =    56m, offid = 1 },
+                new { id = 4, dt = DateTime.Today.AddDays(-4), amount = 12.34m, offid = 3 },
+                new { id = 5, dt = DateTime.Today.AddDays(-2), amount =    43m, offid = 1 },
+                new { id = 6, dt = DateTime.Today.AddDays(-1), amount =    70m, offid = 2 },
+            };
+
+            var groupJoin = off.GroupJoin(
+                inv,
+                o => o.id,
+                i => i.offid,
+                (o, ii) => new
+                {
+                    id = o.id,
+                    title = o.title,
+                    typ = o.typ,
+                    total = ii.Sum(x => x.amount)
+                }
+            );
+
+            foreach (var x1 in groupJoin)
+            {
+                Debug.WriteLine(x1);
+            }
+        }
+
+        [Flags]
+        public enum Providers
+        {
+            None = 1,
+            Google = 2,
+            LinkedIn = 4
+        }
+
+        [Test]
+        public void TestEnumXOR()
+        {
+            var p = Providers.None;
+
+            Debug.WriteLine($"1) Ini: {p}");
+
+            p |= Providers.Google;
+            p |= Providers.LinkedIn;
+
+            Debug.WriteLine($"2) Add Google + LinkedIn: {p}");
+
+            p ^= Providers.Google;
+
+            Debug.WriteLine($"3) Remove Google: {p}");
         }
     }
 }
