@@ -59,10 +59,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Address.cs" />
-    <Compile Include="AsyncTasks.cs" />
     <Compile Include="CodeWars.cs" />
+    <Compile Include="Codewars\BreadcrumbGenerator.cs" />
     <Compile Include="Codewars\TimeFormat.cs" />
-    <Compile Include="Customers.cs" />
+    <Compile Include="Codewars\TrailingZeros.cs" />
     <Compile Include="ScheduleTime.cs" />
     <Compile Include="StaticClass.cs" />
     <Compile Include="MyUnitTests.cs" />

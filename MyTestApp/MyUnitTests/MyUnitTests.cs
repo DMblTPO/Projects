@@ -98,36 +98,6 @@ namespace MyUnitTests
 
 
         [Test]
-        public void Test_Linq_Find_With_Null()
-        {
-            try
-            {
-                var flatCspCustomer = Data.IniCspCustomers
-                    .Where(c => c.Domains != null);
-                // .SelectMany(d => d.Domains, (p, c) => new {p.TenantId, c.Name});
-
-                var toBeCreatedFlat = (
-                    from c in Data.IniDbCustomers.Where(x => x.Comments.Contains("#2"))
-                    join csp in flatCspCustomer on c.TenantId equals csp.TenantId
-                    where
-                        csp.Domains.Any(d => c.TenantName != null && d.Name.Equals(c.TenantName) ||
-                                             c.PrimaryDomain != null && d.Name.Equals(c.PrimaryDomain))
-                    select new
-                    {
-                        c.TenantId,
-                        c.PrimaryDomain,
-                        c.TenantName
-                    }).ToList();
-
-                Assert.IsTrue(toBeCreatedFlat.Count == 3);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-        }
-
-        [Test]
         public async Task TestCorrect()
             //note the return type of Task. This is required to get the async test 'waitable' by the framework
         {
@@ -139,21 +109,6 @@ namespace MyUnitTests
             }).Unwrap();
                 //Note the call to Unwrap. This automatically attempts to find the most Inner `Task` in the return type.
             Console.WriteLine("All done [{0}]", DateTime.Now);
-        }
-
-        [Test]
-        public async Task RunAsyncTestFactorial()
-        {
-            Console.WriteLine("Start  [{0}]", DateTime.Now);
-            await AsyncTasks.DisplayResultAsync();
-            Console.WriteLine("Finish [{0}]", DateTime.Now);
-        }
-
-        [Test]
-        public void CalcRecurFactorial()
-        {
-            var num = 10;
-            Console.WriteLine("Factorial of {0} is {1}.", num, AsyncTasks.RecFact(num));
         }
 
         [Test]
