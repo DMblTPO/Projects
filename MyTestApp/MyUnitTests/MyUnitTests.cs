@@ -26,6 +26,35 @@ namespace MyUnitTests
         }
 
         [TestMethod]
+        public void TestFindBitLevel()
+        {
+            int FindBitLevel(int i)
+            {
+                for (int l = 1; l < 32; l++)
+                {
+                    if ((1 << l) > i)
+                        return l;
+                }
+
+                return -1;
+            }
+
+            Assert.IsTrue(FindBitLevel(1000000) == 20);
+            Assert.IsTrue(FindBitLevel(1) == 1);
+            Assert.IsTrue(FindBitLevel(2) == 2);
+            Assert.IsTrue(FindBitLevel(3) == 2);
+            Assert.IsTrue(FindBitLevel(4) == 3);
+            Assert.IsTrue(FindBitLevel(5) == 3);
+            Assert.IsTrue(FindBitLevel(6) == 3);
+            Assert.IsTrue(FindBitLevel(7) == 3);
+            Assert.IsTrue(FindBitLevel(8) == 4);
+            Assert.IsTrue(FindBitLevel(9) == 4);
+            Assert.IsTrue(FindBitLevel(10) == 4);
+            Assert.IsTrue(FindBitLevel(200) == 8);
+            Assert.IsTrue(FindBitLevel(60000) == 16);
+        }
+
+        [TestMethod]
         public void Test_CompareNullOrEmptyStrings()
         {
             string s1 = string.Empty;
