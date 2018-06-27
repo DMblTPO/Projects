@@ -23,7 +23,7 @@ public class FactDecompTest
 
 class FactDecomp
 {
-    private static Dictionary<int, int> map = new Dictionary<int, int>();
+    private static readonly Dictionary<int, int> Map = new Dictionary<int, int>();
 
     private static void Devide(int i)
     {
@@ -32,30 +32,30 @@ class FactDecomp
             return;
         }
 
-        var pair = map.FirstOrDefault(x => i % x.Key == 0);
+        var pair = Map.FirstOrDefault(x => i % x.Key == 0);
 
         if (pair.Key == 0)
         {
-            map.Add(i, 1);
+            Map.Add(i, 1);
             return;
         }
 
-        map[pair.Key]++;
+        Map[pair.Key]++;
         
         Devide(i / pair.Key);
     }
 
     public static string Decomp(int n)
     {
-        map.Clear();
-        map.Add(2, 1);
+        Map.Clear();
+        Map.Add(2, 1);
 
         for (int i = 3; i <= n; i++)
         {
             Devide(i);
         }
 
-        var decomp = string.Join(" * ", map.Select(x => $"{x.Key}{(x.Value == 1 ? string.Empty : $"^{x.Value}")}"));
+        var decomp = string.Join(" * ", Map.Select(x => $"{x.Key}{(x.Value == 1 ? string.Empty : $"^{x.Value}")}"));
 
         return decomp;
     }
