@@ -51,14 +51,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="FactDecompTest.cs" />
+    <Compile Include="CodeWars\FactDecompTest.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />
     <Compile Include="Customers.cs" />
+    <Compile Include="CodeWars\SimplePigLatin.cs" />
     <Compile Include="StaticClass.cs" />
     <Compile Include="MyUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
