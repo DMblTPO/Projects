@@ -3,60 +3,65 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[TestClass]
-public class FactDecompTest
+namespace MyUnitTests.CodeWars
 {
-    private void Testing(int n, string expected) {
-        Console.WriteLine("n: {0}, expected: {1}", n, expected);
-        Assert.AreEqual(expected, FactDecomp.Decomp(n));
-    }
-
-    [TestMethod]
-    public void Test() {
-        Testing(17, "2^15 * 3^6 * 5^3 * 7^2 * 11 * 13 * 17");
-        Testing(5, "2^3 * 3 * 5");
-        Testing(22, "2^19 * 3^9 * 5^4 * 7^3 * 11^2 * 13 * 17 * 19");
-        Testing(14, "2^11 * 3^5 * 5^2 * 7^2 * 11 * 13");
-        Testing(25, "2^22 * 3^10 * 5^6 * 7^3 * 11^2 * 13 * 17 * 19 * 23");
-    }
-}
-
-class FactDecomp
-{
-    private static readonly Dictionary<int, int> Map = new Dictionary<int, int>();
-
-    private static void Devide(int i)
+    [TestClass]
+    public class FactDecompTest
     {
-        if (i <= 1)
+        private void Testing(int n, string expected)
         {
-            return;
+            Console.WriteLine("n: {0}, expected: {1}", n, expected);
+            Assert.AreEqual(expected, FactDecomp.Decomp(n));
         }
 
-        var pair = Map.FirstOrDefault(x => i % x.Key == 0);
-
-        if (pair.Key == 0)
+        [TestMethod]
+        public void Test()
         {
-            Map.Add(i, 1);
-            return;
+            Testing(17, "2^15 * 3^6 * 5^3 * 7^2 * 11 * 13 * 17");
+            Testing(5, "2^3 * 3 * 5");
+            Testing(22, "2^19 * 3^9 * 5^4 * 7^3 * 11^2 * 13 * 17 * 19");
+            Testing(14, "2^11 * 3^5 * 5^2 * 7^2 * 11 * 13");
+            Testing(25, "2^22 * 3^10 * 5^6 * 7^3 * 11^2 * 13 * 17 * 19 * 23");
         }
-
-        Map[pair.Key]++;
-        
-        Devide(i / pair.Key);
     }
 
-    public static string Decomp(int n)
+    class FactDecomp
     {
-        Map.Clear();
-        Map.Add(2, 1);
+        private static readonly Dictionary<int, int> Map = new Dictionary<int, int>();
 
-        for (int i = 3; i <= n; i++)
+        private static void Devide(int i)
         {
-            Devide(i);
+            if (i <= 1)
+            {
+                return;
+            }
+
+            var pair = Map.FirstOrDefault(x => i % x.Key == 0);
+
+            if (pair.Key == 0)
+            {
+                Map.Add(i, 1);
+                return;
+            }
+
+            Map[pair.Key]++;
+
+            Devide(i / pair.Key);
         }
 
-        var decomp = string.Join(" * ", Map.Select(x => $"{x.Key}{(x.Value == 1 ? string.Empty : $"^{x.Value}")}"));
+        public static string Decomp(int n)
+        {
+            Map.Clear();
+            Map.Add(2, 1);
 
-        return decomp;
+            for (int i = 3; i <= n; i++)
+            {
+                Devide(i);
+            }
+
+            var decomp = string.Join(" * ", Map.Select(x => $"{x.Key}{(x.Value == 1 ? string.Empty : $"^{x.Value}")}"));
+
+            return decomp;
+        }
     }
 }
