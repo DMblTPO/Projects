@@ -1,25 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace MyUnitTests.CodeWars
 {
     // http://www.codewars.com/kata/next-smaller-number-with-the-same-digits/train/csharp
 
-    class NextSmallerNumWithTheSameDigits
+    static class Ex
     {
-        private static void Swap(char[] arr, int x, int y)
+        public static long ToLong(this IEnumerable<char> arr)
         {
-            var z = arr[x];
-            arr[x] = arr[y];
-            arr[y] = z;
+            return long.Parse(new string(arr.ToArray()));
         }
 
-        private static void Swap(Dictionary<int, char> dic, int x, int y)
+    }
+
+    class NextSmallerNumWithTheSameDigits
+    {
+        private static long MyPow(long x, long y)
         {
-            var z = dic[x];
-            dic[x] = dic[y];
-            dic[y] = z;
+            if (y == 1) return x;
+            return x * MyPow(x, y - 1);
         }
 
         public static long NextSmaller(long n)
@@ -27,75 +29,93 @@ namespace MyUnitTests.CodeWars
             if (n < 21) return -1;
 
             var nums = n.ToString().Select(x => x).ToArray();
-            
-            var dic = nums.Select((x, i) => new {Key = i, Value = x}).ToList(); //.ToDictionary(x => x.key, x => x.value);
 
-            var len = nums.Length;
-            var last = len - 1;
+            if (n % MyPow(10, (nums.Length - 1)) == 0) return -1;
 
-            if (nums[last] == '0' && n % (10 ^ len-1) == 0)
+            var dic = nums.Select((x, i) => new {Pos = i, Value = x}).ToList();
+
+            try
             {
-                return -1;
-            }
+                var zzz = new List<char>();
+                var zero = dic.First(x => x.Value == '0');
 
-            if (nums[last] == '0')
-            {
-                for (var i = last-1; i > 0; i--)
+                if (zero.Pos == nums.Length - 2)
                 {
-                    if (nums[i] > '0')
+                    if (zero.Pos == 1 && nums[zero.Pos - 1] <= nums[zero.Pos + 1])
                     {
-                        Swap(nums, i, i + 1);
-                        return long.Parse(new string(nums));
+                        return -1;
                     }
+
+                    zzz = nums.Take(zero.Pos - 1).ToList();
+                    zzz.AddRange(
+                        nums[zero.Pos - 1] > nums[zero.Pos + 1]
+                            ? new[] {nums[zero.Pos + 1], nums[zero.Pos - 1], '0'}
+                            : new[] {'0', nums[zero.Pos + 1], nums[zero.Pos - 1]});
                 }
+                else
+                {
+                    if (nums.Skip(zero.Pos + 1).All(x => x > nums[zero.Pos - 1]))
+                    {
+                        return -1;
+                    }
+
+                    zzz = nums.Take(zero.Pos - 1).ToList();
+                    zzz.Add('0');
+                    zzz.Add(dic[zero.Pos - 1].Value);
+                    zzz.AddRange(nums.Skip(zzz.Count).OrderByDescending(x => x));
+                }
+
+                var zzzRes = zzz.ToLong();
+                return zzzRes;
+            }
+            catch
+            {
             }
 
-            var lastSmall = dic.LastOrDefault(x => dic.Take(x.Key).Any(sx => sx.Value > x.Value));
-            var lastBig = dic.Take(lastSmall.Key).LastOrDefault(x => x.Value > lastSmall.Value);
-
-            var @new = dic.Take(lastBig.Key).ToList();
-            @new.Add(lastSmall);
-            @new.AddRange(dic.Skip(lastBig.Key + 1).Take(lastSmall.Key - lastBig.Key - 1).OrderByDescending(x => x.Value));
-
-            var s = last;
-            for (var k = last; k > 0; k--)
+            try
             {
-                if (nums[k - 1] > nums[k])
-                {
-                    s = k - 1;
-                    break;
-                }
+                var lastSmall = dic.Last(x => dic.Take(x.Pos).Any(sx => sx.Value > x.Value));
+                var lastBig = dic.Take(lastSmall.Pos).Last(x => x.Value > lastSmall.Value);
+
+                var @new = nums.Take(lastBig.Pos).ToList();
+                @new.Add(lastSmall.Value);
+                @new.AddRange(
+                    dic.Skip(lastBig.Pos)
+                        .Where(x => x.Pos != lastSmall.Pos)
+                        .Select(x => x.Value)
+                        .OrderByDescending(x => x)
+                );
+
+                var res = @new.ToLong();
+
+                return res;
             }
-
-            for (var k = s; k > 0; k--)
+            catch
             {
-                Swap(nums, k, k - 1);
-                if (nums[k] > nums[k - 1])
-                {
-                    if (nums[0] == '0') return -1;
-                    return long.Parse(new string(nums));
-                }
             }
 
             return -1;
-
         }
     }
 
-    [TestFixture]
+    [TestClass]
     public class Tests
     {
-        [TestCase(29009, ExpectedResult = 20990)]
-        [TestCase(100, ExpectedResult = -1)]
-        [TestCase(907, ExpectedResult = 790)]
-        [TestCase(21, ExpectedResult = 12)]
-        [TestCase(531, ExpectedResult = 513)]
-        [TestCase(1027, ExpectedResult = -1)]
-        [TestCase(441, ExpectedResult = 414)]
-        [TestCase(123456798, ExpectedResult = 123456789)]
-        public long FixedTests(long n)
-        {
-            return NextSmallerNumWithTheSameDigits.NextSmaller(n);
-        }
+        [TestMethod]
+        [DataRow(2071, 2017)]
+        [DataRow(809, -1)]
+        [DataRow(1027, -1)]
+        [DataRow(908, 890)]
+        [DataRow(1234567908, 1234567890)]
+        [DataRow(315, 153)]
+        [DataRow(29009, 20990)]
+        [DataRow(907, 790)]
+        [DataRow(100, -1)]
+        [DataRow(531, 513)]
+        [DataRow(21, 12)]
+        [DataRow(441, 414)]
+        [DataRow(123456798, 123456789)]
+        public void FixedTests(long n, long exRes) 
+            => Assert.AreEqual(exRes, NextSmallerNumWithTheSameDigits.NextSmaller(n));
     }
 }
