@@ -29,44 +29,29 @@ namespace MyUnitTests.CodeWars
             if (n < 21) return -1;
 
             var nums = n.ToString().Select(x => x).ToArray();
+            var last = nums.Length - 1;
 
-            if (n % MyPow(10, (nums.Length - 1)) == 0) return -1;
+            if (n % MyPow(10, last) == 0) return -1;
 
             var dic = nums.Select((x, i) => new {Pos = i, Value = x}).ToList();
 
             try
             {
-                var zzz = new List<char>();
-                var zero = dic.First(x => x.Value == '0');
+                var small = dic.Last(x => dic.Any(sx => sx.Value > x.Value && sx.Pos < x.Pos) && x.Value != '0');
+                var big = dic.Last(x => x.Value > small.Value && x.Pos < small.Pos);
+                var maxSmall = dic.FirstOrDefault(x => x.Value > small.Value && x.Pos > big.Pos && x.Pos < small.Pos) ??
+                               small;
 
-                if (zero.Pos == nums.Length - 2)
-                {
-                    if (zero.Pos == 1 && nums[zero.Pos - 1] <= nums[zero.Pos + 1])
-                    {
-                        return -1;
-                    }
+                var res = nums.Take(big.Pos).ToList();
+                res.Add(maxSmall.Value);
+                res.AddRange(
+                    dic.Skip(big.Pos)
+                        .Where(x => x.Pos != maxSmall.Pos)
+                        .Select(x => x.Value)
+                        .OrderByDescending(x => x)
+                );
 
-                    zzz = nums.Take(zero.Pos - 1).ToList();
-                    zzz.AddRange(
-                        nums[zero.Pos - 1] > nums[zero.Pos + 1]
-                            ? new[] {nums[zero.Pos + 1], nums[zero.Pos - 1], '0'}
-                            : new[] {'0', nums[zero.Pos + 1], nums[zero.Pos - 1]});
-                }
-                else
-                {
-                    if (nums.Skip(zero.Pos + 1).All(x => x > nums[zero.Pos - 1]))
-                    {
-                        return -1;
-                    }
-
-                    zzz = nums.Take(zero.Pos - 1).ToList();
-                    zzz.Add('0');
-                    zzz.Add(dic[zero.Pos - 1].Value);
-                    zzz.AddRange(nums.Skip(zzz.Count).OrderByDescending(x => x));
-                }
-
-                var zzzRes = zzz.ToLong();
-                return zzzRes;
+                return res.ToLong();
             }
             catch
             {
@@ -74,21 +59,42 @@ namespace MyUnitTests.CodeWars
 
             try
             {
-                var lastSmall = dic.Last(x => dic.Take(x.Pos).Any(sx => sx.Value > x.Value));
-                var lastBig = dic.Take(lastSmall.Pos).Last(x => x.Value > lastSmall.Value);
+                var zeroSmall = dic.First(x => x.Value == '0');
+                var zeroBig = dic.Last(x => x.Value == '0');
+                // var zeroCnt = dic.Count(x => x.Value == '0');
+                var nonZero = dic.First(x => x.Value != '0' && x.Pos > zeroSmall.Pos);
+                var nonZeroBetween = nonZero.Pos < zeroBig.Pos;
 
-                var @new = nums.Take(lastBig.Pos).ToList();
-                @new.Add(lastSmall.Value);
-                @new.AddRange(
-                    dic.Skip(lastBig.Pos)
-                        .Where(x => x.Pos != lastSmall.Pos)
-                        .Select(x => x.Value)
-                        .OrderByDescending(x => x)
-                );
+                if (zeroSmall.Pos == last)
+                {
+                    // swap last 2 digits
+                    var swap = nums[last];
+                    nums[last] = nums[last - 1];
+                    nums[last - 1] = swap;
+                    return nums.ToLong();
+                }
 
-                var res = @new.ToLong();
+                List<char> res;
 
-                return res;
+                if (zeroSmall.Pos == 1) // second
+                {
+                    if (dic.Any(x => x.Pos > 1 && x.Value < nums[0]))
+                    {
+                        var first = dic.Skip(2).Where(x => x.Value < nums[0]).Max();
+                        res = new List<char> {first.Value};
+                        res.AddRange(dic.Where(x => x.Pos != first.Pos).Select(x => x.Value).OrderByDescending(x => x));
+                        return res.ToLong();
+                    }
+
+                    return -1;
+                }
+
+                res = nums.Take(zeroSmall.Pos - 1).ToList();
+                res.Add('0');
+                var rest = new List<char> {nums[zeroSmall.Pos - 1]};
+                rest.AddRange(nums.Skip(zeroSmall.Pos+1));
+                res.AddRange(rest.OrderByDescending(x => x));
+                return rest.ToLong();
             }
             catch
             {
@@ -102,13 +108,13 @@ namespace MyUnitTests.CodeWars
     public class Tests
     {
         [TestMethod]
+        [DataRow(29009, 20990)]
+        [DataRow(1027, -1)]
         [DataRow(2071, 2017)]
         [DataRow(809, -1)]
-        [DataRow(1027, -1)]
         [DataRow(908, 890)]
         [DataRow(1234567908, 1234567890)]
         [DataRow(315, 153)]
-        [DataRow(29009, 20990)]
         [DataRow(907, 790)]
         [DataRow(100, -1)]
         [DataRow(531, 513)]
