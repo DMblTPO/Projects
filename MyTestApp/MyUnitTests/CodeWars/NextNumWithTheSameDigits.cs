@@ -52,19 +52,14 @@ namespace MyUnitTests.CodeWars
 
             try
             {
-                var zero = dic.Last(x => x.Chr == '0');
-                var zzero = dic.LastOrDefault(x => x.Chr == '0' && x.Ind < zero.Ind) ?? zero;
-                if (zzero.Ind != last)
-                {
-                    var replace = dic.Where(x => x.Ind > zzero.Ind && x.Chr != '0').Min();
-                    var res = new List<char>(nums.Take(zzero.Ind)) {replace.Chr, '0'};
-                    res.AddRange(
-                        dic.Where(x => x.Ind > zzero.Ind && x.Ind != replace.Ind)
-                           .Select(x => x.Chr)
-                           .OrderBy(x => x)
-                        );
-                    return res.ToLong();
-                }
+                var lhv = dic.Last(x => x.Ind != last && dic.Any(sx => sx.Ind > x.Ind && sx.Chr > x.Chr));
+                var rhv = dic.Last(x => x.Chr > lhv.Chr && x.Ind > lhv.Ind && x.Chr != '0');
+                var res = new List<char>(nums.Take(lhv.Ind)) {rhv.Chr};
+                res.AddRange(
+                    dic.Where(x => x.Ind >= lhv.Ind && x.Ind != rhv.Ind && x.Ind != last + 1)
+                        .Select(x => x.Chr)
+                        .OrderBy(x => x));
+                return res.ToLong();
             }
             catch
             {
@@ -72,15 +67,23 @@ namespace MyUnitTests.CodeWars
 
             try
             {
-                var first = dic.Last(x => dic.Take(x.Ind).Any(sx => sx.Chr < x.Chr));
-                var replace = dic.Last(x => x.Chr < first.Chr); // zero's handled upper
-                var res = new List<char>(nums.Take(replace.Ind)) {first.Chr};
-                res.AddRange(
-                    dic.Skip(replace.Ind + 1)
-                        .Where(x => x.Ind != first.Ind)
-                         .Select(x => x.Chr)
-                          .OrderBy(x => x));
-                return res.ToLong();
+                var zero = dic.Last(x => x.Chr == '0' && 
+                                         dic.SingleOrDefault(
+                                             sx => sx.Ind == x.Ind + 1 &&
+                                                   sx.Chr > '0'
+                                             ) != null);
+                if (dic.Skip(zero.Ind).All(x => x.Chr <= dic[zero.Ind + 1].Chr))
+                {
+                    var ch = dic.Where(x => x.Ind > zero.Ind && x.Chr != '0').Min(x => x.Chr);
+                    var replace = dic.First(x => x.Ind > zero.Ind && x.Chr == ch);
+                    var res = new List<char>(nums.Take(zero.Ind)) {replace.Chr, '0'};
+                    res.AddRange(
+                        dic.Where(x => x.Ind > zero.Ind && x.Ind != replace.Ind)
+                            .Select(x => x.Chr)
+                            .OrderBy(x => x)
+                    );
+                    return res.ToLong();
+                }
             }
             catch
             {
@@ -96,35 +99,9 @@ namespace MyUnitTests.CodeWars
             var nums = n.ToCharArray();
             var last = nums.Length - 1;
 
-            if (n % MyPow(10, last) == 0) return -1;
+            if (nums.Count(x => x == '0') == last) return -1;
 
             var dic = nums.ToDic();
-
-            if (nums[last] != '0')
-            {
-                try
-                {
-                    var small = dic.Last(x => dic.Any(sx => sx.Chr > x.Chr && sx.Ind < x.Ind) && x.Chr != '0');
-                    var big = dic.Last(x => x.Chr > small.Chr && x.Ind < small.Ind);
-                    var maxSmall =
-                        dic.FirstOrDefault(x => x.Chr > small.Chr && x.Ind > big.Ind && x.Ind < small.Ind) ??
-                        small;
-
-                    var res = nums.Take(big.Ind).ToList();
-                    res.Add(maxSmall.Chr);
-                    res.AddRange(
-                        dic.Skip(big.Ind)
-                            .Where(x => x.Ind != maxSmall.Ind)
-                            .Select(x => x.Chr)
-                            .OrderByDescending(x => x)
-                    );
-
-                    return res.ToLong();
-                }
-                catch
-                {
-                }
-            }
 
             try
             {
@@ -162,6 +139,30 @@ namespace MyUnitTests.CodeWars
             {
             }
 
+            //if (nums[last] != '0')
+            {
+                try
+                {
+                    var lhv = dic.Last(x =>
+                        x.Chr != '0' && x.Ind != last &&
+                        dic.FirstOrDefault(sx => sx.Ind > x.Ind && sx.Chr < x.Chr) != null);
+                    var max = dic.Where(x => x.Ind > lhv.Ind && x.Chr < lhv.Chr).Max(x => x.Chr);
+                    var rhv = dic.First(x => x.Ind > lhv.Ind && x.Chr == max);
+
+                    var res = new List<char>(nums.Take(lhv.Ind)) {rhv.Chr};
+                    res.AddRange(
+                        dic.Where(x => x.Ind != rhv.Ind && x.Ind >= lhv.Ind)
+                           .Select(x => x.Chr)
+                           .OrderByDescending(x => x)
+                    );
+
+                    return res.ToLong();
+                }
+                catch
+                {
+                }
+            }
+
             return -1;
         }
     }
@@ -170,35 +171,14 @@ namespace MyUnitTests.CodeWars
     public class Tests
     {
         [TestMethod]
-        [DataRow(125130, 125103)]
-        [DataRow(315, 153)]
-        [DataRow(908, 890)]
-        [DataRow(-1, 980)]
-        [DataRow(29009, 20990)]
-        [DataRow(2071, 2017)]
-        [DataRow(1702, 1072)]
-        [DataRow(-1, 100)]
-        [DataRow(125301, 125130)]
-        [DataRow(12513531, 12513513)]
-        [DataRow(12531, 12513)]
-        [DataRow(21, 12)]
-        [DataRow(441, 414)]
-        [DataRow(531, 513)]
         [DataRow(1234567908, 1234567890)]
-        [DataRow(907, 790)]
-        [DataRow(123456798, 123456789)]
-        [DataRow(10829494039415810, 10829494039415801)]
-        public void TestNextBigger(long exRes, long n) 
-            => Assert.AreEqual(exRes, NextNumWithTheSameDigits.NextBigger(n));
-
-        [TestMethod]
+        [DataRow(1027, -1)]
+        [DataRow(51226262651257, 51226262627551)]
         [DataRow(10829494039415810, 10829494039415801)]
         [DataRow(29009, 20990)]
-        [DataRow(1027, -1)]
         [DataRow(2071, 2017)]
         [DataRow(809, -1)]
         [DataRow(908, 890)]
-        [DataRow(1234567908, 1234567890)]
         [DataRow(315, 153)]
         [DataRow(907, 790)]
         [DataRow(100, -1)]
@@ -209,5 +189,31 @@ namespace MyUnitTests.CodeWars
         public void TestNextSmaller(long n, long exRes) 
             => Assert.AreEqual(exRes, NextNumWithTheSameDigits.NextSmaller(n));
 
+        [TestMethod]
+        [DataRow(51226262627551, 51226262627551)]
+        [DataRow(2146095976, 2146096579)]
+        [DataRow(12, 21)]
+        [DataRow(1234567890, 1234567908)]
+        [DataRow(1977075943, 1977079345)]
+        [DataRow(12513, 12531)]
+        [DataRow(2017, 2071)]
+        [DataRow(20990, 29009)]
+        [DataRow(7728322, 7732228)]
+        [DataRow(1072, 1207)]
+        [DataRow(125130, 125301)]
+        [DataRow(125137, 125173)]
+        [DataRow(125103, 125130)]
+        [DataRow(153, 315)]
+        [DataRow(890, 908)]
+        [DataRow(980, -1)]
+        [DataRow(100, -1)]
+        [DataRow(12513513, 12513531)]
+        [DataRow(414, 441)]
+        [DataRow(513, 531)]
+        [DataRow(790, 907)]
+        [DataRow(123456789, 123456798)]
+        [DataRow(10829494039415801, 10829494039415810)]
+        public void TestNextBigger(long n, long exRes) 
+            => Assert.AreEqual(exRes, NextNumWithTheSameDigits.NextBigger(n));
     }
 }
