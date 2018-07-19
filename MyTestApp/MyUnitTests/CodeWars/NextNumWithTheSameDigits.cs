@@ -105,6 +105,8 @@ namespace MyUnitTests.CodeWars
 
             try
             {
+                var zz = dic.Last(x => x.Chr != '0' && dic.All(y => y.Chr == '0' && y.Ind > x.Ind)); // 1234567000 -> 7
+
                 var zeroFirst = dic.First(x => x.Chr == '0');
                 var zeroLast = dic.Last(x => x.Chr == '0');
                 var nonZero = dic.LastOrDefault(x => x.Chr != '0' && x.Ind > zeroFirst.Ind && x.Ind < zeroLast.Ind);
@@ -172,9 +174,8 @@ namespace MyUnitTests.CodeWars
     {
         [TestMethod]
         [DataRow(1234567908, 1234567890)]
-        [DataRow(1027, -1)]
-        [DataRow(51226262651257, 51226262627551)]
         [DataRow(10829494039415810, 10829494039415801)]
+        [DataRow(1027, -1)]
         [DataRow(29009, 20990)]
         [DataRow(2071, 2017)]
         [DataRow(809, -1)]
@@ -186,33 +187,35 @@ namespace MyUnitTests.CodeWars
         [DataRow(21, 12)]
         [DataRow(441, 414)]
         [DataRow(123456798, 123456789)]
+        [DataRow(51226262651257, 51226262627551)]
         public void TestNextSmaller(long n, long exRes) 
             => Assert.AreEqual(exRes, NextNumWithTheSameDigits.NextSmaller(n));
 
         [TestMethod]
         [DataRow(51226262627551, 51226262627551)]
-        [DataRow(2146095976, 2146096579)]
-        [DataRow(12, 21)]
-        [DataRow(1234567890, 1234567908)]
-        [DataRow(1977075943, 1977079345)]
-        [DataRow(12513, 12531)]
-        [DataRow(2017, 2071)]
-        [DataRow(20990, 29009)]
-        [DataRow(7728322, 7732228)]
-        [DataRow(1072, 1207)]
-        [DataRow(125130, 125301)]
-        [DataRow(125137, 125173)]
-        [DataRow(125103, 125130)]
-        [DataRow(153, 315)]
-        [DataRow(890, 908)]
-        [DataRow(980, -1)]
-        [DataRow(100, -1)]
-        [DataRow(12513513, 12513531)]
-        [DataRow(414, 441)]
-        [DataRow(513, 531)]
-        [DataRow(790, 907)]
-        [DataRow(123456789, 123456798)]
-        [DataRow(10829494039415801, 10829494039415810)]
+        //[DataRow(51226262627551, 51226262627551)]
+        //[DataRow(2146095976, 2146096579)]
+        //[DataRow(12, 21)]
+        //[DataRow(1234567890, 1234567908)]
+        //[DataRow(1977075943, 1977079345)]
+        //[DataRow(12513, 12531)]
+        //[DataRow(2017, 2071)]
+        //[DataRow(20990, 29009)]
+        //[DataRow(7728322, 7732228)]
+        //[DataRow(1072, 1207)]
+        //[DataRow(125130, 125301)]
+        //[DataRow(125137, 125173)]
+        //[DataRow(125103, 125130)]
+        //[DataRow(153, 315)]
+        //[DataRow(890, 908)]
+        //[DataRow(980, -1)]
+        //[DataRow(100, -1)]
+        //[DataRow(12513513, 12513531)]
+        //[DataRow(414, 441)]
+        //[DataRow(513, 531)]
+        //[DataRow(790, 907)]
+        //[DataRow(123456789, 123456798)]
+        //[DataRow(10829494039415801, 10829494039415810)]
         public void TestNextBigger(long n, long exRes) 
             => Assert.AreEqual(exRes, NextNumWithTheSameDigits.NextBigger(n));
     }
