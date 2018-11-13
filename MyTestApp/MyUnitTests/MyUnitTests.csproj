@@ -66,6 +66,7 @@
     <Compile Include="CodeWars\Finder.cs" />
     <Compile Include="CodeWars\HumanTimeFormat.cs" />
     <Compile Include="CodeWars\NextNumWithTheSameDigits.cs" />
+    <Compile Include="CodeWars\Sudoku.cs" />
     <Compile Include="Customers.cs" />
     <Compile Include="CodeWars\SimplePigLatin.cs" />
     <Compile Include="StaticClass.cs" />
