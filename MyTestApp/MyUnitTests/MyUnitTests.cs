@@ -356,5 +356,24 @@ namespace MyUnitTests
             Debug.WriteLine(date);
             Assert.IsTrue(true);
         }
+
+        [TestMethod]
+        public void SasUriParseTest()
+        {
+            var testUrl = "https://vbstoqa.blob.core.windows.net/temp/02821BEBB95599302045497204B3E14D?st=2018-08-09T14%3A09%3A09Z&se=2018-08-10T14%3A09%3A09Z&sp=rwl&sv=2018-03-28&sr=b&sig=cjy0EdMs5dixb4bho2wl0UdPFW7feNWupAMiDgVjxGM%3D";
+
+            var uri = new Uri(testUrl);
+
+            Debug.WriteLine(uri.AbsolutePath);
+            Debug.WriteLine(uri.AbsoluteUri);
+            Debug.WriteLine(uri.Authority);
+            Debug.WriteLine(uri.Fragment);
+            Debug.WriteLine(uri.Host);
+            Debug.WriteLine(uri.LocalPath);
+            Debug.WriteLine(uri.OriginalString);
+            Debug.WriteLine(uri.Segments);
+
+            Assert.IsTrue(true);
+        }
     }
 }

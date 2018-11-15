@@ -63,6 +63,10 @@
     <Compile Include="CodeWars\FactDecompTest.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />
+    <Compile Include="CodeWars\Finder.cs" />
+    <Compile Include="CodeWars\HumanTimeFormat.cs" />
+    <Compile Include="CodeWars\NextNumWithTheSameDigits.cs" />
+    <Compile Include="CodeWars\Sudoku.cs" />
     <Compile Include="CodeWars\Mixing.cs" />
     <Compile Include="CodeWars\NextSmallerNumWithTheSameDigits.cs" />
     <Compile Include="Customers.cs" />
