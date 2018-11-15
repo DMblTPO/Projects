@@ -63,6 +63,7 @@
     <Compile Include="CodeWars\FactDecompTest.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />
+    <Compile Include="CodeWars\Mixing.cs" />
     <Compile Include="CodeWars\NextSmallerNumWithTheSameDigits.cs" />
     <Compile Include="Customers.cs" />
     <Compile Include="CodeWars\SimplePigLatin.cs" />
