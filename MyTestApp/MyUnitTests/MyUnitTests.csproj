@@ -68,7 +68,6 @@
     <Compile Include="CodeWars\NextNumWithTheSameDigits.cs" />
     <Compile Include="CodeWars\Sudoku.cs" />
     <Compile Include="CodeWars\Mixing.cs" />
-    <Compile Include="CodeWars\NextSmallerNumWithTheSameDigits.cs" />
     <Compile Include="Customers.cs" />
     <Compile Include="CodeWars\SimplePigLatin.cs" />
     <Compile Include="StaticClass.cs" />
