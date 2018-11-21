@@ -24,7 +24,7 @@ namespace MyUnitTests.CodeWars
 
     public class DependencyChain
     {
-        public static Dictionary<string, string[]> ExpandDependencies(Dictionary<string, string[]> dependencies)
+        public static Dictionary<string, string[]> ExpandDependencies1(Dictionary<string, string[]> dependencies)
         {
             var res = dependencies.ToDictionary(k => k.Key, v => v.Value.ToList());
 
@@ -57,6 +57,31 @@ namespace MyUnitTests.CodeWars
                 res[head].AddRange(deps);
             }
         }
+        public static Dictionary<string, string[]> ExpandDependencies(Dictionary<string, string[]> dependencies)
+        {
+            var res = dependencies.ToDictionary(k => k.Key, v => new HashSet<string>(v.Value));
+
+            foreach (var d in dependencies)
+            {
+                var lev1 = new Stack<string>(d.Value);
+
+                while (lev1.Count != 0)
+                {
+                    var newDep = lev1.Pop();
+                    if (d.Key.Equals(newDep))
+                    {
+                        throw new InvalidOperationException($"A circular dependency for [{d.Key}]");
+                    }
+                    res[d.Key].Add(newDep);
+                    foreach (var s in res[newDep].Except(res[d.Key]))
+                    {
+                        lev1.Push(s);
+                    }
+                }
+            }
+
+            return res.ToDictionary(k => k.Key, v => v.Value.Distinct().ToArray());
+        }
     }
 }
 
@@ -65,6 +90,34 @@ namespace MyUnitTests.CodeWars
     [TestFixture]
     public class DependencyChainTest
     {
+        [Test]
+        public void ExampleFromDescription0()
+        {
+            // Arrange
+            var startFiles = new Dictionary<string, string[]>
+            {
+                ["A"] = new[] { "B", "D" },
+                ["B"] = new[] { "C" },
+                ["C"] = new[] { "D" },
+                ["D"] = new string[] { }
+            };
+
+            var correctFiles = new Dictionary<string, string[]>
+            {
+                ["A"] = new[] { "B", "C", "D" },
+                ["B"] = new[] { "C", "D" },
+                ["C"] = new[] { "D" },
+                ["D"] = new string[] { }
+            };
+
+            // Act
+            var actualFiles = DependencyChain.ExpandDependencies(startFiles);
+            var errorMessage = "Expected:\n" + TestTools.Print(correctFiles) + "\nGot:\n" + TestTools.Print(actualFiles);
+    
+            // Assert
+            Assert.IsTrue(TestTools.Match(actualFiles, correctFiles), errorMessage);
+        }
+
         [Test]
         public void ExampleFromDescription()
         {
