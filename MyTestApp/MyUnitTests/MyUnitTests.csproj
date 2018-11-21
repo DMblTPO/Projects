@@ -60,6 +60,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeWars\DependencyChain.cs" />
     <Compile Include="CodeWars\FactDecompTest.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />

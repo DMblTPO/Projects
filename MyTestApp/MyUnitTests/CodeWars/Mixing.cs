@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MyUnitTests.CodeWars
 {
-    using System;
     using NUnit.Framework;
 
     [TestFixture]
@@ -78,3 +76,5 @@ namespace MyUnitTests.CodeWars
         }
     }
 }
+
+
