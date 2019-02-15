@@ -11,9 +11,9 @@ namespace MyUnitTests.CodeWars
             Value, Operation
         }
 
-        private class Expression
+        private abstract class Expression
         {
-            public Expression(ExpressionType type) => Type = type;
+            protected Expression(ExpressionType type) => Type = type;
             public ExpressionType Type { get; }
         }
 
@@ -50,7 +50,6 @@ namespace MyUnitTests.CodeWars
             {
                 get
                 {
-                    if (!_expression.Any()) return Value;
                     var res = Value;
                     _expression.ForEach(x => { res *= x.Value; });
                     return res;
