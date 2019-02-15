@@ -60,11 +60,13 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="CodeWars\BurrowsWheelerTransformation.cs" />
     <Compile Include="CodeWars\DependencyChain.cs" />
     <Compile Include="CodeWars\FactDecompTest.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="AsyncTasks.cs" />
     <Compile Include="CodeWars\Finder.cs" />
+    <Compile Include="CodeWars\FluentCalculator.cs" />
     <Compile Include="CodeWars\HumanTimeFormat.cs" />
     <Compile Include="CodeWars\NextNumWithTheSameDigits.cs" />
     <Compile Include="CodeWars\Sudoku.cs" />

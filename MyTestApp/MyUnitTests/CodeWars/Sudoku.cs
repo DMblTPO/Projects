@@ -90,3 +90,7 @@ namespace MyUnitTests.CodeWars
         public void Test(bool expected, int[][] board) => Assert.AreEqual(expected, Sudoku.ValidateSolution(board));
     }
 }
+
+namespace MyUnitTests.CodeWars
+{
+}

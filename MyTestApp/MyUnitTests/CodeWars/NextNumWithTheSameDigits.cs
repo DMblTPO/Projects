@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace MyUnitTests.CodeWars
 {
@@ -9,7 +10,7 @@ namespace MyUnitTests.CodeWars
 
     class Pair
     {
-        public int Ind { get; set; }
+        public int Idx { get; set; }
         public char Chr { get; set; }
     }
 
@@ -22,12 +23,20 @@ namespace MyUnitTests.CodeWars
 
         public static char[] ToCharArray(this long n)
         {
-            return n.ToString().Select(x => x).ToArray();
+            return n.ToString().ToArray();
         }
 
         public static IList<Pair> ToDic(this char[] arr)
         {
-            return arr.Select((x, i) => new Pair {Ind = i, Chr = x}).ToList();
+            return arr.Select((x, i) => new Pair {Idx = i, Chr = x}).ToList();
+        }
+
+        public static char[] SwapChar(this char[] arr, int p1, int p2)
+        {
+            var c = arr[p1];
+            arr[p1] = arr[p2];
+            arr[p2] = c;
+            return arr;
         }
     }
 
@@ -52,11 +61,11 @@ namespace MyUnitTests.CodeWars
 
             try
             {
-                var lhv = dic.Last(x => x.Ind != last && dic.Any(sx => sx.Ind > x.Ind && sx.Chr > x.Chr));
-                var rhv = dic.Last(x => x.Chr > lhv.Chr && x.Ind > lhv.Ind && x.Chr != '0');
-                var res = new List<char>(nums.Take(lhv.Ind)) {rhv.Chr};
+                var lhv = dic.Last(x => x.Idx != last && dic.Any(sx => sx.Idx > x.Idx && sx.Chr > x.Chr));
+                var rhv = dic.Last(x => x.Chr > lhv.Chr && x.Idx > lhv.Idx && x.Chr != '0');
+                var res = new List<char>(nums.Take(lhv.Idx)) {rhv.Chr};
                 res.AddRange(
-                    dic.Where(x => x.Ind >= lhv.Ind && x.Ind != rhv.Ind && x.Ind != last + 1)
+                    dic.Where(x => x.Idx >= lhv.Idx && x.Idx != rhv.Idx && x.Idx != last + 1)
                         .Select(x => x.Chr)
                         .OrderBy(x => x));
                 return res.ToLong();
@@ -69,16 +78,16 @@ namespace MyUnitTests.CodeWars
             {
                 var zero = dic.Last(x => x.Chr == '0' &&
                                          dic.SingleOrDefault(
-                                             sx => sx.Ind == x.Ind + 1 &&
+                                             sx => sx.Idx == x.Idx + 1 &&
                                                    sx.Chr > '0'
                                          ) != null);
-                if (dic.Skip(zero.Ind).All(x => x.Chr <= dic[zero.Ind + 1].Chr))
+                if (dic.Skip(zero.Idx).All(x => x.Chr <= dic[zero.Idx + 1].Chr))
                 {
-                    var ch = dic.Where(x => x.Ind > zero.Ind && x.Chr != '0').Min(x => x.Chr);
-                    var replace = dic.First(x => x.Ind > zero.Ind && x.Chr == ch);
-                    var res = new List<char>(nums.Take(zero.Ind)) {replace.Chr, '0'};
+                    var ch = dic.Where(x => x.Idx > zero.Idx && x.Chr != '0').Min(x => x.Chr);
+                    var replace = dic.First(x => x.Idx > zero.Idx && x.Chr == ch);
+                    var res = new List<char>(nums.Take(zero.Idx)) {replace.Chr, '0'};
                     res.AddRange(
-                        dic.Where(x => x.Ind > zero.Ind && x.Ind != replace.Ind)
+                        dic.Where(x => x.Idx > zero.Idx && x.Idx != replace.Idx)
                             .Select(x => x.Chr)
                             .OrderBy(x => x)
                     );
@@ -97,87 +106,61 @@ namespace MyUnitTests.CodeWars
             if (n < 21) return -1;
 
             var nums = n.ToCharArray();
-            var last = nums.Length - 1;
-
-            if (nums.Count(x => x == '0') == last) return -1;
+            var lastIdx = nums.Length - 1;
 
             var dic = nums.ToDic();
 
-            try
+            List<char> res;
+
+            var rep = dic.Where(x => x.Idx != lastIdx).FirstOrDefault(x => x.Chr > nums[x.Idx+1]);
+            var allZero = dic.Where(x => x.Chr == '0');
+            var lastZero = allZero.LastOrDefault();
+            var beforeZero = lastZero != null? dic.LastOrDefault(x => x.Idx < lastZero.Idx && x.Chr != '0'): null;
+            var zeroOneSeq = allZero.Skip(1).All(x => allZero.Any(xx => xx.Idx == x.Idx - 1));
+
+            if (beforeZero != null && 
+                (lastIdx - allZero.Count() == beforeZero.Idx &&
+                (dic.Any(x => x.Idx <= beforeZero.Idx-1 && x.Chr <= nums[x.Idx+1]) || beforeZero.Idx==0) ||
+                 zeroOneSeq && nums[1] == '0' && 
+                 dic.Where(x => x.Chr != '0').Skip(1).All(x => true)))
             {
-                List<char> res;
+                // 100, 12300, 123, 100023
+                return -1;
+            }
 
-                // is there the last zero(s)
-                var lastNonZero = dic.LastOrDefault(x => x.Chr != '0' && x.Ind > 1);
-                if (lastNonZero != null && dic[last].Chr == '0')
+            if (allZero.Any())
+            {
+                if (lastZero.Idx == lastIdx && lastIdx > 1 && nums[lastIdx-1] != '0')
                 {
-                    nums[lastNonZero.Ind] = '0';
-                    nums[lastNonZero.Ind + 1] = lastNonZero.Chr;
-                    return nums.ToLong();
+                    // 12305670 -> 12305607
+                    return nums.SwapChar(lastIdx, lastIdx - 1).ToLong();
                 }
-
-                var lastZero = dic.LastOrDefault(x => x.Chr == '0');
-                if (lastZero != null)
+                if (lastZero != null && lastZero.Idx > 1 && lastZero.Idx != lastIdx)
                 {
-                    if (dic.Where(x => x.Ind > lastZero.Ind && x.Ind != dic[last].Ind)
-                        .All(x => x.Chr <= dic[x.Ind + 1].Chr))
-                    {
-                        var firstNonZero = dic.LastOrDefault(x => x.Chr != '0' && x.Ind > 0 && x.Ind < lastZero.Ind);
-                        if (firstNonZero != null)
-                        {
-                            var chg = dic.Where(x => x.Ind > lastZero.Ind && x.Chr < firstNonZero.Chr)
-                                .OrderByDescending(x => x.Chr).First();
-                            res = new List<char>(nums.Take(firstNonZero.Ind)) {chg.Chr};
-                            var rest = new List<char>(
-                                dic.Where(x => x.Ind >= firstNonZero.Ind && x.Ind != chg.Ind)
-                                    .Select(x => x.Chr)
+                    if (nums[lastZero.Idx-1] <= nums[lastZero.Idx+1])
+                    {   // 3507 -> 3075
+                        res = new List<char>(nums.Take(lastZero.Idx-1)){'0'};
+                        res.AddRange(
+                                new List<char>(nums.Skip(lastZero.Idx+1)){nums[lastZero.Idx-1]}.OrderByDescending(x => x)
                             );
-                            res.AddRange(rest.OrderByDescending(x => x));
-                            return res.ToLong();
-                        }
+                        return res.ToLong();
+                    }
+                    if (nums[lastZero.Idx-1] > nums[lastZero.Idx+1] && rep == null)
+                    {   // 3705 -> 3570
+                        res = new List<char>(nums.Take(lastZero.Idx-1)){nums[lastZero.Idx+1]};
+                        res.AddRange(
+                            new List<char>(nums.Skip(lastZero.Idx+2)){nums[lastZero.Idx-1],'0'}.OrderByDescending(x => x)
+                        );
+                        return res.ToLong();
                     }
                 }
-
-                //if (nums[1] == '0')
-                //{
-                //    if (dic.Any(x => x.Ind > 1 && x.Chr < nums[0]))
-                //    {
-                //        var first = dic.Skip(2).Where(x => x.Chr < nums[0]).Max();
-                //        res = new List<char> {first.Chr};
-                //        res.AddRange(dic.Where(x => x.Ind != first.Ind).Select(x => x.Chr).OrderByDescending(x => x));
-                //        return res.ToLong();
-                //    }
-
-                //    return -1;
-                //}
-            }
-            catch
-            {
             }
 
-            try
+            if (rep != null)
             {
-                var lhv = dic.Where(x => x.Ind != last || x.Chr != '0')
-                             .Last(x => dic.Any(sx => sx.Chr < x.Chr));
-                var rhv = dic.Where(x => x.Ind > lhv.Ind && x.Chr < lhv.Chr).OrderByDescending(x => x.Chr).First();
-
-                /*
-                var lhv = dic.Last(x => x.Ind > (lastZero?.Ind ?? -1) && x.Ind != last &&
-                                        dic.FirstOrDefault(sx => sx.Ind > x.Ind && sx.Chr < x.Chr) != null);
-                var rhv = dic.Where(x => x.Ind > lhv.Ind && x.Chr < lhv.Chr).OrderByDescending(x => x.Chr).First();
-                */
-
-                var res = new List<char>(nums.Take(lhv.Ind)) {rhv.Chr};
-                res.AddRange(
-                    dic.Where(x => x.Ind != rhv.Ind && x.Ind >= lhv.Ind)
-                        .Select(x => x.Chr)
-                        .OrderByDescending(x => x)
-                );
-
+                res = new List<char>(nums.Take(rep.Idx)){nums[rep.Idx+1]};
+                res.AddRange(new List<char>(nums.Skip(rep.Idx+2)){nums[rep.Idx]}.OrderByDescending(x => x));
                 return res.ToLong();
-            }
-            catch
-            {
             }
 
             return -1;
@@ -188,13 +171,16 @@ namespace MyUnitTests.CodeWars
     public class Tests
     {
         [TestMethod]
+        [DataRow(1234567908, 1234567890)]
+        [DataRow(100027, -1)]
+        [DataRow(100, -1)]
+        [DataRow(123, -1)]
+        [DataRow(123000, -1)]
+        [DataRow(10829494039415810, 10829494039415801)]
         [DataRow(92071, 92017)]
-        [DataRow(1027, -1)]
         [DataRow(4401, 4140)]
         [DataRow(441, 414)]
         [DataRow(2071, 2017)]
-        [DataRow(1234567908, 1234567890)]
-        [DataRow(10829494039415810, 10829494039415801)]
         [DataRow(29009, 20990)]
         [DataRow(809, -1)]
         [DataRow(908, 890)]
