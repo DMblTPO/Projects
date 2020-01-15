@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
+﻿using System.Linq;
 
 namespace MyUnitTests.CodeWars
 {
@@ -10,39 +6,23 @@ namespace MyUnitTests.CodeWars
     {
         public static bool ValidateSolution(int[][] board)
         {
-            if (board.Length != 9 && board.Any(x => x.Length != 9))
-            {
-                return false;
-            }
+            int CalcKey(int i) => i <= 2 ? 1 : i > 2 && i < 6 ? 2 : 3;
 
-            bool CheckSudoku(int[][] b)
-            {
-                foreach (var row in b)
-                {
-                    if (row.Where(x => x >= 1 && x <= 9).Sum() != 45)
-                    {
-                        return false;
-                    }
-
-                    if (row.GroupBy(x => x).Select(x => new {x.Key, Qty = x.Count()}).Any(x => x.Qty > 1))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            var bb = board.Select(x => new int[9]).ToArray();
-
-            for (var i = 0; i < 9; i++)
-            {
-                for (var j = 0; j < 9; j++)
-                {
-                    bb[i][j] = board[j][i];
-                }
-            }
-
-            return CheckSudoku(board) && CheckSudoku(bb);
+            return board.Length == 9 &&
+                   board.All(x => x.Length == 9) &&
+                   board.All(x => x.All(xx => xx >= 1 && xx <= 9)) &&
+                   board.All(x => x.Sum() == 45) &&
+                   board.Select(x => string.Join("-", x.Select(xx => $"{xx}"))).Distinct().Count() == 9 &&
+                   board
+                       .Select((x, i) => x.Select((xx, ii) => new
+                       {
+                           key = 10 * CalcKey(i) + CalcKey(ii),
+                           val = xx
+                       }))
+                       .SelectMany(x => x)
+                       .GroupBy(x => x.key)
+                       .Select(g => g.Sum(x => x.val))
+                       .All(x => x == 45);
         }
     }
 }
@@ -50,8 +30,6 @@ namespace MyUnitTests.CodeWars
 namespace MyUnitTests.CodeWars 
 {
     using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
 
     [TestFixture]
     public class Sudoku_Sample_Tests
