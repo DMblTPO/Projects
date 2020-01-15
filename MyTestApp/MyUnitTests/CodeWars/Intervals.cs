@@ -1,4 +1,6 @@
-﻿namespace MyUnitTests.CodeWars
+﻿using System;
+
+namespace MyUnitTests.CodeWars
 {
     using NUnit.Framework;
 
@@ -56,7 +58,6 @@
 
 namespace MyUnitTests.CodeWars
 {
-    using System.Collections.Generic;
     using System.Linq;
 
     public class Intervals
@@ -68,13 +69,18 @@ namespace MyUnitTests.CodeWars
         }
 
         public static int SumIntervals((int, int)[] intervals)
+            => intervals
+                .SelectMany(i => Enumerable.Range(i.Item1, i.Item2 - i.Item1))
+                .Distinct()
+                .Count();
+
+        public static int SumIntervals1((int, int)[] intervals)
         {
             if (intervals.Length == 0)
             {
                 return 0;
             }
 
-            var sum = new List<Interval>();
             var arr = intervals
                 .Where(x => x.Item2 > x.Item1)
                 .OrderBy(x => x.Item1)
@@ -91,31 +97,37 @@ namespace MyUnitTests.CodeWars
                 return 0;
             }
 
-            var a = arr[0];
-            var start = a.X0;
-            var end = a.X1;
-            for (var i = 1; i < arr.Length; i++)
+            var res = 0;
+
+            while (true)
             {
-                var b = arr[i];
-                if (b.X1 > end)
+                var len = arr.Length;
+                var skip = 0;
+                var a = arr[0];
+                var rbMax = a.X1;
+                while (true)
                 {
-                    end = b.X1;
+                    var period = arr.Where(x => x.X0 <= rbMax).ToArray();
+                    var rb = period.Max(x => x.X1);
+                    if (rb == rbMax)
+                    {
+                        skip = period.Length;
+                        break;
+                    }
+                    rbMax = rb;
                 }
 
-                if (a.X1 >= b.X0)
+                res += rbMax - a.X0;
+
+                if (skip >= len)
                 {
-                    a = b;
-                    continue;
+                    break;
                 }
 
-                sum.Add(new Interval {X0 = start, X1 = a.X1});
-                start = b.X0;
-                a = b;
+                arr = arr.Skip(skip).ToArray();
             }
 
-            sum.Add(new Interval {X0 = start, X1 = end});
-
-            return sum.Sum(x => x.X1 - x.X0);
+            return res;
         }
     }
 }
